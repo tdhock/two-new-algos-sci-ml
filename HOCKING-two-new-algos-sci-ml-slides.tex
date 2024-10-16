@@ -1,0 +1,662 @@
+\documentclass[t]{beamer}
+\usepackage{tikz}
+\usepackage[all]{xy}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage[noend]{algcompatible}
+\usepackage{multirow}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\Lik}{Lik}
+\DeclareMathOperator*{\PoissonLoss}{PoissonLoss}
+\DeclareMathOperator*{\Peaks}{Peaks}
+\DeclareMathOperator*{\Segments}{Segments}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\minimize}{minimize}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\ZZ}{\mathbb Z}
+\newcommand{\NN}{\mathbb N}
+\newcommand{\z}{$z = 2, 4, 3, 5, 1$} 
+
+\newcommand{\algo}[1]{\textcolor{#1}{#1}}
+\definecolor{PDPA}{HTML}{66C2A5}
+\definecolor{CDPA}{HTML}{FC8D62}
+\definecolor{GPDPA}{HTML}{4D4D4D}
+
+% Set transparency of non-highlighted sections in the table of
+% contents slide.
+\setbeamertemplate{section in toc shaded}[default][100]
+\AtBeginSection[]
+{
+  \setbeamercolor{section in toc}{fg=red} 
+  \setbeamercolor{section in toc shaded}{fg=black} 
+  \begin{frame}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\title{Two new algorithms for scientific applications of machine learning}
+
+\author{
+  Toby Dylan Hocking --- toby.dylan.hocking@usherbrooke.ca\\ 
+  Learning Algorithms, Statistical Software, Optimization (LASSO Lab) --- \url{https://lassolab.org}\\
+  Département d'Informatique,  Université de Sherbrooke\\
+  \includegraphics[height=5cm]{2022-10-14_ML_group_meeting.jpg} \\
+}
+
+\date{}
+
+\maketitle
+
+\section{Introduction: two common questions in collaborations involving applications of machine learning}
+
+\begin{frame}
+  \frametitle{Learning two different functions using two data sets}
+  Figure from chapter by Hocking TD, \textit{Introduction to machine
+    learning and neural networks} for book \textit{Land Carbon Cycle
+    Modeling: Matrix Approach, Data Assimilation, and Ecological
+    Forecasting} edited by Luo Y (Taylor and Francis, 2022).
+  \begin{center}
+  \includegraphics[width=\textwidth]{figure-learn-digits-clothing}
+\end{center}
+  \textbf{Learn} is a learning algorithm, which outputs
+  $g$ and $h$.
+
+  Q: what happens if you do
+    $g(\includegraphics[height=1cm]{fashion-mnist-boot})$, or
+    $h(\includegraphics[height=1cm]{mnist-0})$?
+\end{frame}
+
+\begin{frame}
+  \frametitle{Train on one subset and accurately predict on another?} 
+  \begin{itemize}
+  \item What if you do
+    $g(\includegraphics[height=1cm]{fashion-mnist-boot})$, or
+    $h(\includegraphics[height=1cm]{mnist-0})$?
+  \item This is a question about \textbf{generalization}: how accurate is the
+    learned function on a new/test data set?
+  \item ``Very accurate'' if test data are similar enough to train data (best case is i.i.d. = independent and identically distributed)
+  \item Predicting childhood autism (Lindly \emph{et al.}), train on
+    one year of surveys, test on another.
+  \item Predicting carbon emissions (Aslam \emph{et al.}), train on
+    one city, test on another.
+  \item Predicting presence of trees/burn in satellite imagery
+    (Shenkin \emph{et al.}, \emph{Thibault} \emph{et al.}), train on
+    one geographic area/image, test on another.
+  \item Predicting fish spawning habitat in sonar imagery (Bodine
+    \emph{et al.}), train on one river, test on another.
+  \item But how do we check if ``very accurate'' in each situation?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to deal with class imbalance?}
+  \begin{itemize}
+  \item In binary classification, standard learning algorithms can yield sub-optimal prediction accuracy if train data have imbalanced labels.
+  \item Predicting childhood autism (Lindly \emph{et al.}), 3\% autism, 97\% not.
+  \item Predicting presence of trees/burn in satellite imagery
+    (Shenkin \emph{et al.}, \emph{Thibault} \emph{et al.}), small
+    percent of trees in deserts of Arizona, small percent of burned
+    area out of total forested area in Quebec.
+  \item Predicting fish spawning habitat in sonar imagery (Bodine
+    \emph{et al.}), small percent of suitable spawning habitat, out of
+    total river bed.
+  \item How do we adapt our learning algorithm, to handle the class imbalance?
+  \end{itemize}
+\end{frame}
+
+\section{SOAK: Same/Other/All K-fold cross-validation for comparing models trained on data subsets}
+
+\begin{frame}
+  \frametitle{$K$-fold cross-validation: a standard algorithm used to estimate the prediction accuracy in machine learning}
+
+  \begin{itemize}
+  \item $K=3$ folds shown in figure below, meaning three different
+    models trained, and three different prediction/test accuracy rates
+    computed.
+  \item It is important to use several train/test splits, so we can
+    see if there are statistically significant differences between
+    algorithms.
+  \end{itemize}
+
+  \includegraphics[width=\textwidth]{drawing-cross-validation.pdf}
+
+  \small Hocking TD \emph{Intro. to machine learning and neural
+    networks} (2022).
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example data set: predicting childhood autism}
+
+  \begin{itemize}
+  \item Collaboration with Lindly \emph{et al.}
+  \item Downloaded National Survey of Children's Health (NSCH) data,
+    years 2019 and 2020, from
+    \url{http://www2.census.gov/programs-surveys/nsch}
+  \item One row per person, one column per survey question.
+  \item Pre-processing to obtain common columns over the two years,
+    remove missing values, one-hot/dummy variable encoding.
+  \item Result is $N=46,010$ rows and $D=366$ columns.
+  \item 18,202 rows for 2019; 27,808 rows for 2020.
+  \item One column is diagnosis with Autism (binary
+    classification, yes or no), can we predict it using the others?
+  \item Can we train on one year, and accurately predict on another?
+  \item Can we get a more accurate model by combining data from different years?
+  \end{itemize}
+
+\end{frame} 
+
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (Autism data example)}
+  \begin{itemize}
+  \item Example: childhood autism prediction data set.
+  \end{itemize}
+  \includegraphics[width=\textwidth]{drawing-cv-same-other-years-1.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed Same Other Cross-Validation}
+  \begin{itemize}
+  \item Train subset same as test (=regular $K$-fold CV on 2020).
+  \end{itemize}
+  \includegraphics[width=\textwidth]{drawing-cv-same-other-years-2.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (Autism data example)}
+  \begin{itemize}
+  \item Train subset (2019) different from test (2020).
+  \end{itemize}
+  \includegraphics[width=\textwidth]{drawing-cv-same-other-years-3.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (Autism data example)}
+  \begin{itemize}
+  \item Repeat for each test subset (2019,2020).
+  \end{itemize}
+  \includegraphics[width=\textwidth]{drawing-cv-same-other-years-4.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (generic data)}
+  \begin{itemize}
+  \item Key new idea is \textbf{subset} column in data table.
+  \item Compute test error for each subset (A/B) and fold (1/2/3).
+  \end{itemize}
+  \includegraphics[width=\textwidth]{drawing-cv-same-other-generic}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm is new/unique}
+  \small
+  \begin{itemize}
+  \item ML frameworks like scikit-learn and mlr3 implement cross-validation with \textbf{groups} of samples that must stay together when splitting.
+  \item For example (below), satellite image segmentation, trees vs background, Shenkin \emph{et al.}: samples=pixels, grouped by polygon, SOAK subsets are geographical regions (NW, NE, S).
+  \item SOAK: good predictions on one test \textbf{subset},
+    after training on Same/Other/All subsets? (can use together with groups)
+  \end{itemize}
+  \includegraphics[width=\textwidth]{figure-aztrees}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm, interpretation/expectations}
+
+  For a fixed test set from one subset:
+   
+  If train/test are similar/iid,
+  \begin{description}
+  \item[All] should be most accurate.
+  \item[Same/Other] should be less accurate, because there is less
+    data available (if other is larger than same, then other should be
+    more accurate than same, etc).
+  \end{description}
+
+  If train/test are different (not iid),
+  \begin{description}
+  \item[Same] should be most accurate.
+  \item[Other] should be substantially less accurate.
+  \item[All] accuracy should be between same and other.
+  \end{description}
+  \begin{itemize}
+    \item Can we train on one year, and accurately predict on another? Compare Same/Other test error.
+    \item Can we get a more accurate model by combining data from
+      different years? Compare Same/All test error.
+  \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{ImagePair data: train on MNIST and accurately predict on MNIST variants?}
+
+  Recall: what happens if you do
+  $g(\includegraphics[height=1cm]{fashion-mnist-boot})$, or
+  $h(\includegraphics[height=1cm]{mnist-0})$?
+  
+  \begin{itemize}
+  \item Boot image comes from FashionMNIST data, which were used to learn $h$.
+  \item 0 image comes from MNIST data, which were used to learn $g$.
+  \end{itemize}
+
+  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_1.png}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SOAK for MNIST+FashionMNIST data}
+
+  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_FashionMNIST.png}
+  
+  \includegraphics[width=\textwidth]{MNIST_FashionMNIST_error_glmnet_featureless_mean_SD.png}
+  \begin{itemize}
+  \item Other linear model has greater test error than featureless, which
+    indicates that the patterns are too different to learn anything at
+    all. 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SOAK for MNIST+EMNIST data}
+
+  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST.png}
+  
+  \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD.png}
+  \begin{itemize}
+  \item Other has somewhat smaller test error than featureless, so
+    something is learned/transferable between data sets, but it is
+    still clear that the pattern is very different.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SOAK for MNIST+EMNIST\_rot data}
+
+  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
+  
+  \includegraphics[width=\textwidth]{MNIST_EMNIST_rot_error_glmnet_featureless_mean_SD.png}
+  \begin{itemize}
+  \item Other still has larger test error than same, indicating some
+    similarity between MNIST and EMNIST\_rot data sets.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with a pre-defined train/test split}
+  \begin{itemize}
+  \item Machine learning researchers evaluate new algorithms using
+    benchmark data sets, which sometimes have pre-defined train/test
+    splits.
+% > meta.dt[data.name=="MNIST"]
+%    data.name memory.kb  rows n.groups              group.tab group.small.name
+%       <char>     <int> <int>    <int>                 <char>           <char>
+% 1:     MNIST    429712 70000        2 test=10000;train=60000             test
+%    group.small.N group.large.name group.large.N label.small.name label.small.N
+%            <int>           <char>         <int>           <char>         <int>
+% 1:         10000            train         60000                0          6903
+%    label.large.name label.large.N features classes min.rows  test train test%
+%              <char>         <int>    <int>   <int>    <int> <int> <int> <int>
+% 1:                9          6958      784      10      892 10000 60000    14 
+  \item For example MNIST is a data set of images of handwritten
+    digits (want to predict which digit, 0 to 9), with 60,000 train
+    and 10,000 test images.
+% > meta.dt[data.name=="spam"]
+%    data.name memory.kb  rows n.groups            group.tab group.small.name
+%       <char>     <int> <int>    <int>               <char>           <char>
+% 1:      spam      2078  4601        2 test=1536;train=3065             test
+%    group.small.N group.large.name group.large.N label.small.name label.small.N
+%            <int>           <char>         <int>           <char>         <int>
+% 1:          1536            train          3065                0          2788
+%    label.large.name label.large.N features classes min.rows  test train test%
+%              <char>         <int>    <int>   <int>    <int> <int> <int> <int>
+% 1:                1          1813       57       2      595  1536  3065    33
+  \item spam is a data set of emails (want to predict spam or not,
+    binary), with 3065 train and 1536 test emails.
+  \item Are the patterns in the pre-defined train/test sets
+    similar/iid?
+  \item Or are they different? 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with a pre-defined train/test split}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd}
+  \vskip -0.5cm
+  \begin{itemize}
+  \item Use pre-defined split as SOAK subset, to see if patterns are learnable/predictable in different pre-defined subsets.
+  \item Left, similar subsets, all error less than same. (expected)
+  \item Right, different subsets, all error greater than same. (surprising)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Data sets analyzed}
+  \begin{itemize}
+  \item Sorted by test error difference between all and same.
+  \item Different groups on top/positive.
+  \item Similar groups on bottom/negative.
+  \end{itemize}
+  \scriptsize
+\begin{tabular}{rlrrrrr}
+  \hline
+ & data.name & rows & features & classes & n.groups & all-same \\ 
+  \hline
+1 & vowel & 990 &  10 &  11 &   2 & 9.98 \\ 
+  2 & CanadaFires\_downSampled & 1491 &  46 &   2 &   4 & 4.02 \\ 
+  3 & CanadaFires\_all & 4827 &  46 &   2 &   4 & 3.39 \\ 
+  4 & aztrees4 & 5956 &  21 &   2 &   4 & 2.28 \\ 
+  5 & aztrees3 & 5956 &  21 &   2 &   3 & 2.05 \\ 
+  6 & FishSonar\_river & 2815744 &  81 &   2 &   4 & 1.69 \\ 
+  7 & KMNIST & 70000 & 784 &  10 &   2 & 0.87 \\
+  \hline
+  8 & NSCH\_autism & 46010 & 364 &   2 &   2 & -0.03 \\ 
+  9 & MNIST & 70000 & 784 &  10 &   2 & -0.53 \\ 
+  10 & QMNIST & 120000 & 784 &  10 &   2 & -0.70 \\ 
+  11 & spam & 4601 &  57 &   2 &   2 & -0.77 \\ 
+  12 & EMNIST & 70000 & 784 &  10 &   2 & -0.85 \\ 
+  13 & FashionMNIST & 70000 & 784 &  10 &   2 & -0.97 \\ 
+  14 & zipUSPS & 9298 & 256 &  10 &   2 & -1.44 \\ 
+  15 & waveform & 800 &  21 &   3 &   2 & -1.54 \\ 
+  16 & CIFAR10 & 60000 & 3072 &  10 &   2 & -1.77 \\ 
+  17 & STL10 & 13000 & 27648 &  10 &   2 & -1.97 \\ 
+   \hline
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}
+  \includegraphics[height=\textheight]{data_Classif_batchmark_registry_scatter_other_segments.png} 
+\end{frame}
+ 
+\begin{frame}
+  \includegraphics[height=\textheight]{data_Classif_batchmark_registry_scatter_all_segments.png}
+\end{frame}
+ 
+\begin{frame}
+  \frametitle{Discussion and Conclusions}
+  \begin{itemize}
+  \item Proposed SOAK algorithm shows if
+    data subsets are similar enough for learning/prediction.
+  \item In Autism data, there was a slight benefit to combining years.
+  \item In fires/trees/fish data, we observed
+    significant differences between images/regions/rivers.
+  \item Some pre-defined train/test splits in benchmark data
+    are similar/iid (STL10/waveform), others are not (KMNIST/vowel).
+  \item Free/open-source R package available in mlr3 framework (easy
+    parallelization over algorithms, train/test splits, data sets)
+    \url{https://github.com/tdhock/mlr3resampling}
+  \item These slides are reproducible, using the code in \url{https://github.com/tdhock/cv-same-other-paper}
+  \end{itemize}
+\end{frame}
+
+
+\section{AUM=Area Under Min(FPR,FNR), a new differentiable loss for ROC curve optimization} 
+
+\begin{frame}
+  \frametitle{Problem: supervised binary classification}
+  
+  \begin{itemize}
+  \item Given pairs of inputs $\mathbf x\in\mathbb R^p$ and outputs
+    $y\in\{0,1\}$ can we learn a score 
+    $f(\mathbf x)\in\mathbb R$, predict $y=1$ when $f(\mathbf x)>0$?
+  \item Example: email, $\mathbf x =$bag of words, $y=$spam or not.
+  \item Example: images. Jones {\it et al.} PNAS 2009.
+    \parbox{2in}{\includegraphics[width=2in]{cellprofiler}}
+    \parbox{1.9in}{Most algorithms (SVM, Logistic regression, etc) minimize a differentiable surrogate of zero-one loss = sum of:\\
+      \textbf{False positives:} $f(\mathbf x)>0$ but $y=0$ (predict
+      budding, but cell is not).\\
+      \textbf{False negatives:} $f(\mathbf x)<0$ but $y=1$ (predict
+      not budding, but cell is).  }
+  \end{itemize} 
+\end{frame}
+
+\begin{frame}
+  \frametitle{ROC curves for evaluation, especially useful with imbalance}
+
+  \includegraphics[width=0.65\textwidth]{figure-batchtools-expired-earth-roc}
+
+  \begin{itemize}
+  \item At default FPR=24\% (D), glmnet has fewer errors.
+  \item At FPR=4\%, xgboost has fewer errors.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Receiver Operating Characteristic (ROC) Curves}
+  \begin{itemize}
+  \item Classic evaluation method from the signal processing
+    literature (Egan and Egan, 1975).
+  \item ROC curve of learned $f$ is plot of True
+    Positive Rate vs False Positive Rate: each point on the ROC curve
+    is a different constant $c\in\mathbb R$ added to the predicted
+    values: $f(\mathbf x)+c$.
+  \item $c=\infty$ means always predict positive label (FPR=TPR=1).
+  \item $c=-\infty$ means always predict negative label (FPR=TPR=0).
+  \item Best classifier has a point near upper left (TPR=1, FPR=0), with large
+    Area Under the Curve (AUC).
+  % \item Proposed idea: a new surrogate for AUC that is differentiable,
+  %   so can be used for gradient descent learning.
+  \end{itemize}
+  \includegraphics[width=\textwidth]{figure-more-than-one-new-binary}
+\end{frame}
+
+
+
+\begin{frame}
+  \frametitle{Research question and new idea}
+  Can we learn a binary classification function $f$ which directly
+  optimizes the ROC curve?
+  \begin{itemize}
+  \item Most algorithms involve minimizing a differentiable surrogate
+    of the zero-one loss, which is not the same.
+  \item The Area Under the ROC Curve (AUC) is piecewise constant
+    (gradient zero almost everywhere), so can not be used with
+    gradient descent algorithms.
+  \item We proposed (Hocking, Hillman 2023) to encourage points to be in the upper left of ROC
+    space, using a loss function which is a differentiable surrogate
+    of the sum of min(FPR,FNR).
+  \end{itemize}
+  \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-heat}
+\end{frame}
+ 
+
+\begin{frame}
+  \frametitle{Comparing proposed loss with baselines}
+  \begin{itemize}
+  \small
+  \item Classic baselines: hinge and logistic loss, sum over samples, $\ell[yf(x)]$.
+  \item Bamber (1975) proved ROC-AUC relation to Mann-Whitney
+    U statistic (double sum over all pairs of positive and negative
+    samples).
+  \item Recently:  $\text{SVM}^{\text{struct}}$ (Joachims 2005),
+    X-risk (Yang 2022), %https://arxiv.org/abs/2206.00439
+    All Pairs Squared Hinge (Rust and Hocking 2023),
+    sum loss over pairs of positive and negative samples, $\ell[f(x^+)-f(x^-)]$.
+  \item Proposed: sort-based AUM loss (sum over points on ROC curve).
+  \item Figure below: loss for two samples: one positive, one negative.
+  \end{itemize}
+
+  \includegraphics[width=0.7\textwidth]{figure-compare-hinge-loss-contours-logistic.png}
+
+    Barr, Hocking, Morton, Thatcher, Shaw, \emph{TransAI} (2022).
+
+  %AUM loss here = linear hinge with no margin, summed over pairs.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Large AUC $\approx$ small Area Under Min(FP,FN) (AUM)}
+  \small
+  
+  \includegraphics[height=1.3in]{figure-more-than-one-new-binary-heat}
+
+  Above: purple heat map = numbers near dots = distance to top or left
+
+  = same as black min error rate functions below.
+
+  \includegraphics[height=1.3in]{figure-more-than-one-new-binary-aum-rate}
+
+  Hocking, Hillman, \emph{Journal of Machine Learning Research} (2023).
+
+  %Proposal: track how thresholds in error plot change with step size.
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Computing Sum of Min (SM)}
+  \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-aum-rate}
+  \vskip -0.2cm
+  \begin{itemize}
+  \item For $N$ samples, there are $\leq N+1$ points on the ROC curve,
+  \item with sorted thresholds $T_1\leq\cdots\leq T_N\in\mathbb R$,
+  \item and corresponding min error values $M_1,\dots,M_N$.
+  \item Then if $I$ is the indicator function, we can write the sum of
+    the min (SM), over all ROC points, as:
+  \end{itemize}
+\begin{equation*}
+  \label{eq:SM-computation}
+    \text{SM} =
+    \sum_{i=2}^{N}
+    I[ T_{i} \neq T_{i-1} ]
+    M_i =
+    \sum_{i:T_{i} \neq T_{i-1} }
+    M_i.
+\end{equation*}
+
+($\neq$ required: a tie $T_i=T_{i-1}$ deletes a point from the ROC curve)
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Computing Area Under Min (AUM)}
+  \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-aum-rate}
+
+The AUM can be interpreted as an L1 relaxation of SM,
+
+\begin{eqnarray*}
+    \text{SM} &=&
+    \sum_{i=2}^{N}
+    I[ T_{i} \neq T_{i-1} ]
+    M_i =
+    \sum_{i:T_{i} \neq T_{i-1} }
+                  M_i.
+                                    \\
+    \text{AUM} &=&
+    \sum_{i=2}^{N}
+    [ T_{i} - T_{i-1} ]
+                   M_i.\\
+\end{eqnarray*}
+AUM is therefore a surrogate loss for ROC optimization, and it is differentiable almost everywhere $\Rightarrow$ gradient descent learning!
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{ROC curve pytorch code}
+  \begin{verbatim}
+def ROC_curve(pred_tensor, label_tensor):
+    sorted_indices = torch.argsort(-pred_tensor)
+    ...
+    return { # a dictionary of torch tensors
+        "FPR":FPR,
+        "FNR":FNR,
+        "TPR":1 - FNR,
+        "min(FPR,FNR)":torch.minimum(FPR, FNR),
+        "min_constant":torch.cat([
+          torch.tensor([-torch.inf]), uniq_thresh]),
+        "max_constant":torch.cat([
+          uniq_thresh, torch.tensor([torch.inf])])
+    }
+\end{verbatim}
+
+    \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{AUC and AUM pytorch code uses argsort}
+
+  \begin{itemize}
+  \item ROC AUC and proposed AUM are both implemented by first
+    computing the ROC curve.
+  \end{itemize}
+  \begin{verbatim}
+def ROC_AUC(pred_tensor, label_tensor):
+    roc = ROC_curve(pred_tensor, label_tensor)
+    FPR_diff = roc["FPR"][1:]-roc["FPR"][:-1]
+    TPR_sum = roc["TPR"][1:]+roc["TPR"][:-1]
+    return torch.sum(FPR_diff*TPR_sum/2.0)
+
+def Proposed_AUM(pred_tensor, label_tensor):
+    roc = ROC_curve(pred_tensor, label_tensor)
+    min_FPR_FNR = roc["min(FPR,FNR)"][1:-1]
+    constant_diff = roc["min_constant"][1:].diff()
+    return torch.sum(min_FPR_FNR * constant_diff)
+\end{verbatim}
+
+  \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{AUM pytorch code, auto-grad demo}
+
+  \begin{itemize}
+  \item Assume two samples, $(x_0,y_0=0), (x_1,y_1=1)$,
+  \item Plot objective and gradient with respect to predicted scores.
+  \end{itemize}
+
+  \includegraphics[width=\textwidth]{gg_aum_grad}
+
+  \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+\end{frame}
+
+\begin{frame}
+  \frametitle{AUM gradient descent increases validation AUC,\\
+    four image classification data sets}
+ 
+\includegraphics[width=\textwidth]{data_Classif_batchtools_best_valid_scatter}
+
+\begin{itemize}
+\item Unbalanced binary classification: 10\% negative, 90\% positive.
+\item Gradient descent with constant step size, best of $10^{-4}$ to $10^5$.
+\item Full gradient (batch size = number of samples).
+\item Linear model, max iterations = 100,000.
+\item Max Validation AUC comparable or better than baselines: logistic loss and all paired squared hinge (like LibAUC/X-risk).
+\item Number of epochs comparable to baselines.
+\item Time per epoch is $O(N \log N)$ (sort), small log factor larger than standard logistic/cross-entropy loss, $O(N)$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Discussion and future work}
+  \begin{itemize}
+  \item Classic baselines are simple (sum over samples).
+  \item Proposed AUM loss similar to recent losses that sum over all
+    pairs of positive and negative examples (both can be implemented
+    by sorting predicted scores)
+  \item Proposed AUM loss uses a
+    different/novel relaxation.
+  \item Proposed AUM loss implemented in pytorch code, can be used as a drop-in replacement for logistic/binary cross-entropy loss, \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+  \item Best use with stochastic gradient algorithms?
+    At least one positive and one negative example is required in each
+    batch.
+  \item Margin-based algorithms like SVM?
+  \item Works well in binary classification, how to adapt to
+    multi-class setting, or other problems such as ranking/information
+    retrieval? (see our JMLR'23 paper for an application to change-point detection, and arXiv:2410.08635 for an efficient line search that exploits the piecewise linear/constant nature of AUM/AUC)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Thanks to my students and collaborators!}
+
+  \includegraphics[width=\textwidth]{2022-10-14_ML_group_meeting}
+
+  Contact: toby.dylan.hocking@usherbrooke.ca
+
+\end{frame}
+
+\end{document}

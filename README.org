@@ -1,0 +1,38 @@
+Title: Two new algorithms for scientific applications of machine learning
+
+Speaker: Toby Dylan HOCKING, https://tdhock.github.io/
+
+Abstract: In the last few years, I have maintained active
+collaborations with scientists who are not machine learning experts,
+but who want to use machine learning algorithms for their data
+analyses. In many scientific applications of machine learning, two
+questions come up again and again. 
+- Question 1. we have some data from one region (or time period), so
+  if we use these data to train, will it work on a new region? (or
+  time period) 
+- Question 2. how do we deal with class imbalance?  
+- Example A: forestry. When predicting forest properties based on
+  objects in satellite images, if we train on one region (say
+  Arizona), will it work in another? (California or Quebec) How to
+  deal with the fact that some objects of interest (trees, burn) are
+  only a small minority of data?
+- Example B: medicine. When predicting autism diagnosis from other
+  survey responses, if we train on one year of survey data (say 2019),
+  will it work in another year? (say 2020) And can we combine the two
+  years of data to get a better model? How to deal with the fact that
+  autism represents only 3% of the total surveys? (97% of survey
+  respondants did not have autism)
+- For Question 1, we propose a new algorithm called SOAK
+  (Same/Other/All K-fold Cross-Validation), which can be used to quantify the extent to
+  which it is possible to predict on a given data subset, after training
+  on Same/Other/All data subsets. https://arxiv.org/abs/2410.08643 
+- For Question 2, we propose a new differentiable loss function which
+  can be used to optimize the ROC curve,
+  https://jmlr.org/papers/v24/21-0751.html 
+- I am a new professor at Université de Sherbrooke since June 2024,
+  and I am open to collaborative research projects / co-supervising
+  students.
+
+Source [[file:HOCKING-two-new-algos-sci-ml-slides.tex]]
+
+PDF [[file:HOCKING-two-new-algos-sci-ml-slides.pdf]]
