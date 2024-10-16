@@ -33,6 +33,10 @@ questions come up again and again.
   and I am open to collaborative research projects / co-supervising
   students.
 
-Source [[file:HOCKING-two-new-algos-sci-ml-slides.tex]]
+Slides PDF [[file:HOCKING-two-new-algos-sci-ml-slides.pdf]]
 
-PDF [[file:HOCKING-two-new-algos-sci-ml-slides.pdf]]
+Source files
+- [[file:HOCKING-two-new-algos-sci-ml-slides.tex]]
+- https://github.com/tdhock/max-generalized-auc
+- https://github.com/tdhock/cv-same-other-paper
+
