@@ -75,21 +75,22 @@
 \begin{frame}
   \frametitle{Train on one subset and accurately predict on another?} 
   \begin{itemize}
+  \item This is a question about \textbf{generalization}: how accurate
+    is the learned function on a new/test data subset which is
+    \textbf{qualitatively different} in some respect?
+  \item ``Very accurate'' if test data are similar enough to train data (best case is i.i.d. = independent and identically distributed)
   \item What if you do
     $g(\includegraphics[height=1cm]{fashion-mnist-boot})$, or
-    $h(\includegraphics[height=1cm]{mnist-0})$?
-  \item This is a question about \textbf{generalization}: how accurate is the
-    learned function on a new/test data set?
-  \item ``Very accurate'' if test data are similar enough to train data (best case is i.i.d. = independent and identically distributed)
+    $h(\includegraphics[height=1cm]{mnist-0})$? (\textbf{different pattern})
   \item Predicting childhood autism (Lindly \emph{et al.}), train on
-    one year of surveys, test on another.
+    one year of surveys, test on another. (\textbf{different time periods})
   \item Predicting carbon emissions (Aslam \emph{et al.}), train on
-    one city, test on another.
+    one city, test on another. (\textbf{different geographic regions})
   \item Predicting presence of trees/burn in satellite imagery
     (Shenkin \emph{et al.}, \emph{Thibault} \emph{et al.}), train on
-    one geographic area/image, test on another.
+    one geographic area/image, test on another. (\textbf{different geographic regions})
   \item Predicting fish spawning habitat in sonar imagery (Bodine
-    \emph{et al.}), train on one river, test on another.
+    \emph{et al.}), train on one river, test on another. (\textbf{geographic regions})
   \item But how do we check if ``very accurate'' in each situation?
   \end{itemize}
 \end{frame}
@@ -171,7 +172,7 @@
 \begin{frame}
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
-  \item Train subset (2019) different from test (2020).
+  \item Test subset fixed (2020), train on other subset/year (2019).
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-years-3.pdf}
 \end{frame}
@@ -179,7 +180,7 @@
 \begin{frame}
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
-  \item Repeat for each test subset (2019,2020).
+  \item Train set includes data from both subset/years (2019, 2020).
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-years-4.pdf}
 \end{frame}
@@ -188,13 +189,13 @@
   \frametitle{Proposed SOAK algorithm (generic data)}
   \begin{itemize}
   \item Key new idea is \textbf{subset} column in data table.
-  \item Compute test error for each subset (A/B) and fold (1/2/3).
+  \item Compute test error for each fold (1/2/3) and subset (A/B).
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-generic}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Proposed SOAK algorithm is new/unique}
+  \frametitle{Proposed SOAK algorithm new to ML frameworks}
   \small
   \begin{itemize}
   \item ML frameworks like scikit-learn and mlr3 implement cross-validation with \textbf{groups} of samples that must stay together when splitting.
@@ -215,15 +216,15 @@
   \begin{description}
   \item[All] should be most accurate.
   \item[Same/Other] should be less accurate, because there is less
-    data available (if other is larger than same, then other should be
-    more accurate than same, etc).
+    data available (if other is larger than same, then Other should be
+    more accurate than Same, etc).
   \end{description}
 
   If subsets have different learnable/predictable patterns,
   \begin{description}
   \item[Same] should be most accurate.
   \item[Other] should be substantially less accurate.
-  \item[All] accuracy should be between same and other.
+  \item[All] accuracy should be between Same and Other.
   \end{description}
   \begin{itemize}
     \item Can we train on one year, and accurately predict on another? Compare Same/Other test error.
@@ -611,29 +612,36 @@ AUM is therefore a surrogate loss for ROC optimization, and it is differentiable
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{ROC curve pytorch code}
+  \frametitle{ROC curve pytorch code uses argsort}
+\small
   \begin{verbatim}
 def ROC_curve(pred_tensor, label_tensor):
-    sorted_indices = torch.argsort(-pred_tensor)
-    ...
-    return { # a dictionary of torch tensors
-        "FPR":FPR,
-        "FNR":FNR,
-        "TPR":1 - FNR,
-        "min(FPR,FNR)":torch.minimum(FPR, FNR),
-        "min_constant":torch.cat([
-          torch.tensor([-torch.inf]), uniq_thresh]),
-        "max_constant":torch.cat([
-          uniq_thresh, torch.tensor([torch.inf])])
-    }
+  sorted_indices=torch.argsort(-pred_tensor)
+  ...
+  return { # a dictionary of torch tensors
+    "FPR":FPR, "FNR":FNR, "TPR":1 - FNR,
+    "min(FPR,FNR)":torch.minimum(FPR, FNR),
+    "min_constant":torch.cat([
+      torch.tensor([-torch.inf]), uniq_thresh]),
+    "max_constant":torch.cat([
+      uniq_thresh, torch.tensor([torch.inf])])  }
+>>> pd.DataFrame(ROC_curve(torch.tensor(
+...   [2.0, -3.5, -1.0, 1.5]), torch.tensor([0,0,1,1])))
+   FPR  FNR  TPR  min(FPR,FNR)  min_constant  max_constant
+0  0.0  1.0  0.0           0.0          -inf          -2.0
+1  0.5  1.0  0.0           0.5          -2.0          -1.5
+2  0.5  0.5  0.5           0.5          -1.5           1.0
+3  0.5  0.0  1.0           0.0           1.0           3.5
+4  1.0  0.0  1.0           0.0           3.5           inf
 \end{verbatim}
 
     \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
 
 \end{frame}
 
+
 \begin{frame}[fragile]
-  \frametitle{AUC and AUM pytorch code uses argsort}
+  \frametitle{AUC and AUM both use ROC curve}
 
   \begin{itemize}
   \item ROC AUC and proposed AUM are both implemented by first
