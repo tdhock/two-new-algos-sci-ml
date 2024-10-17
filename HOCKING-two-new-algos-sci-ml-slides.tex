@@ -161,7 +161,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Proposed Same Other Cross-Validation}
+  \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
   \item Train subset same as test (=regular $K$-fold CV on 2020).
   \end{itemize}
@@ -210,7 +210,8 @@
 
   For a fixed test set from one subset:
    
-  If train/test are similar/iid,
+  If subsets have similar learnable/predictable patterns,
+  \\(this is a weaker condition than i.i.d.)
   \begin{description}
   \item[All] should be most accurate.
   \item[Same/Other] should be less accurate, because there is less
@@ -218,7 +219,7 @@
     more accurate than same, etc).
   \end{description}
 
-  If train/test are different (not iid),
+  If subsets have different learnable/predictable patterns,
   \begin{description}
   \item[Same] should be most accurate.
   \item[Other] should be substantially less accurate.
@@ -255,11 +256,11 @@
   
   \includegraphics[width=\textwidth]{MNIST_FashionMNIST_error_glmnet_featureless_mean_SD.png}
   \begin{itemize}
-  \item \texttt{cv\_glmnet} is L1-regularized linear model,
-    featureless baseline always predicts most frequent class.
-  \item Other \texttt{cv\_glmnet} has greater test error than featureless, which
-    indicates that the patterns are too different to learn anything at
-    all. 
+  \item \textbf{cv\_glmnet} is L1-regularized linear model.
+  \item \textbf{featureless} baseline always predicts most frequent class.
+  \item \textbf{Other cv\_glmnet} has greater test error than
+    \textbf{featureless}, which indicates that the patterns are too
+    different for the linear model to learn anything useful for prediction. 
   \end{itemize}
 \end{frame}
 
@@ -270,8 +271,8 @@
   
   \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD.png}
   \begin{itemize}
-  \item Other \texttt{cv\_glmnet} has significantly smaller test error
-    than featureless, so something is learned/transferable between
+  \item \textbf{Other cv\_glmnet} has significantly smaller test error
+    than \textbf{featureless}, so something is learned/transferable between
     data sets, but it is still clear that the pattern is very
     different.
   \end{itemize}
@@ -284,21 +285,21 @@
   
   \includegraphics[width=\textwidth]{MNIST_EMNIST_rot_error_glmnet_featureless_mean_SD.png}
   \begin{itemize}
-  \item Other \texttt{cv\_glmnet} has even smaller test error,
+  \item \textbf{Other cv\_glmnet} has even smaller test error,
     indicating even more similarity between MNIST and EMNIST\_rot data
     sets.
-  \item But Other/All test error are still not as small as Same,
+  \item But \textbf{Other/All} test error are still not as small as \textbf{Same},
     indicating there is a significant difference between
     learnable/predictable patterns in MNIST/EMNIST\_rot data.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Benchmark data with a pre-defined train/test split}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
   \begin{itemize}
   \item Machine learning researchers evaluate new algorithms using
     benchmark data sets, which sometimes have pre-defined train/test
-    splits.
+    subsets.
 % > meta.dt[data.name=="MNIST"]
 %    data.name memory.kb  rows n.groups              group.tab group.small.name
 %       <char>     <int> <int>    <int>                 <char>           <char>
@@ -310,8 +311,7 @@
 %              <char>         <int>    <int>   <int>    <int> <int> <int> <int>
 % 1:                9          6958      784      10      892 10000 60000    14 
   \item For example MNIST is a data set of images of handwritten
-    digits (want to predict which digit, 0 to 9), with 60,000 train
-    and 10,000 test images.
+    digits (want to predict which digit, 0 to 9), with 60,000 images pre-defined as train, and 10,000 images pre-defined as testc.
 % > meta.dt[data.name=="spam"]
 %    data.name memory.kb  rows n.groups            group.tab group.small.name
 %       <char>     <int> <int>    <int>               <char>           <char>
@@ -324,53 +324,79 @@
 % 1:                1          1813       57       2      595  1536  3065    33
   \item spam is a data set of emails (want to predict spam or not,
     binary), with 3065 train and 1536 test emails.
-  \item Are the patterns in the pre-defined train/test sets
-    similar/iid?
+  \item Are the learnable/predictable patterns in the pre-defined train/test subsets
+    similar?
   \item Or are they different? 
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Benchmark data with a pre-defined train/test split}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
   \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd}
   \vskip -0.5cm
   \begin{itemize}
-  \item Use pre-defined split as SOAK subset, to see if patterns are learnable/predictable in different pre-defined subsets.
+  \item Use pre-defined train/test subsets in SOAK, to see if patterns are learnable/predictable in different pre-defined subsets.
   \item Left, similar subsets, all error less than same. (expected)
   \item Right, different subsets, all error greater than same. (surprising)
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Data sets analyzed}
-  \begin{itemize}
-  \item Sorted by test error difference between all and same.
-  \item Different groups on top/positive.
-  \item Similar groups on bottom/negative.
-  \end{itemize}
-  \scriptsize
-\begin{tabular}{rlrrrrr}
+  \frametitle{20 classification data sets analyzed using SOAK} We
+  considered MNIST and variants as subsets (\textbf{ImagePair}),\\
+  data from collaborations (\textbf{time/space} subsets), \\
+  and benchmark data with
+  pre-defined \textbf{train/test} subsets.  \scriptsize
+% \begin{tabular}{rlrrrrr}
+%   \hline
+%  & data.name & rows & features & classes & n.groups & all-same \\ 
+%   \hline
+% 1 & vowel & 990 &  10 &  11 &   2 & 9.98 \\ 
+%   2 & CanadaFires\_downSampled & 1491 &  46 &   2 &   4 & 4.02 \\ 
+%   3 & CanadaFires\_all & 4827 &  46 &   2 &   4 & 3.39 \\ 
+%   4 & aztrees4 & 5956 &  21 &   2 &   4 & 2.28 \\ 
+%   5 & aztrees3 & 5956 &  21 &   2 &   3 & 2.05 \\ 
+%   6 & FishSonar\_river & 2815744 &  81 &   2 &   4 & 1.69 \\ 
+%   7 & KMNIST & 70000 & 784 &  10 &   2 & 0.87 \\
+%   \hline
+%   8 & NSCH\_autism & 46010 & 364 &   2 &   2 & -0.03 \\ 
+%   9 & MNIST & 70000 & 784 &  10 &   2 & -0.53 \\ 
+%   10 & QMNIST & 120000 & 784 &  10 &   2 & -0.70 \\ 
+%   11 & spam & 4601 &  57 &   2 &   2 & -0.77 \\ 
+%   12 & EMNIST & 70000 & 784 &  10 &   2 & -0.85 \\ 
+%   13 & FashionMNIST & 70000 & 784 &  10 &   2 & -0.97 \\ 
+%   14 & zipUSPS & 9298 & 256 &  10 &   2 & -1.44 \\ 
+%   15 & waveform & 800 &  21 &   3 &   2 & -1.54 \\ 
+%   16 & CIFAR10 & 60000 & 3072 &  10 &   2 & -1.77 \\ 
+%   17 & STL10 & 13000 & 27648 &  10 &   2 & -1.97 \\ 
+%    \hline
+% \end{tabular}
+
+
+\begin{tabular}{rllrrrrr}
   \hline
- & data.name & rows & features & classes & n.groups & all-same \\ 
+ & Type & Data & rows & features & classes & subsets & imb. \\ 
   \hline
-1 & vowel & 990 &  10 &  11 &   2 & 9.98 \\ 
-  2 & CanadaFires\_downSampled & 1491 &  46 &   2 &   4 & 4.02 \\ 
-  3 & CanadaFires\_all & 4827 &  46 &   2 &   4 & 3.39 \\ 
-  4 & aztrees4 & 5956 &  21 &   2 &   4 & 2.28 \\ 
-  5 & aztrees3 & 5956 &  21 &   2 &   3 & 2.05 \\ 
-  6 & FishSonar\_river & 2815744 &  81 &   2 &   4 & 1.69 \\ 
-  7 & KMNIST & 70000 & 784 &  10 &   2 & 0.87 \\
-  \hline
-  8 & NSCH\_autism & 46010 & 364 &   2 &   2 & -0.03 \\ 
-  9 & MNIST & 70000 & 784 &  10 &   2 & -0.53 \\ 
-  10 & QMNIST & 120000 & 784 &  10 &   2 & -0.70 \\ 
-  11 & spam & 4601 &  57 &   2 &   2 & -0.77 \\ 
-  12 & EMNIST & 70000 & 784 &  10 &   2 & -0.85 \\ 
-  13 & FashionMNIST & 70000 & 784 &  10 &   2 & -0.97 \\ 
-  14 & zipUSPS & 9298 & 256 &  10 &   2 & -1.44 \\ 
-  15 & waveform & 800 &  21 &   3 &   2 & -1.54 \\ 
-  16 & CIFAR10 & 60000 & 3072 &  10 &   2 & -1.77 \\ 
-  17 & STL10 & 13000 & 27648 &  10 &   2 & -1.97 \\ 
+1 & \tikz\draw[black,fill=black] (0,0) circle (.5ex); ImagePair & IPair\_E & 140000 & 784 & 10 &  2 & 1.0 \\ 
+  2 & \tikz\draw[black,fill=black] (0,0) circle (.5ex); ImagePair & IPair\_E\_rot & 140000 & 784 & 10 &  2 & 1.0 \\ 
+  3 & \tikz\draw[black,fill=black] (0,0) circle (.5ex); ImagePair & IPair\_Fashion & 140000 & 784 & 10 &  2 & 1.0 \\ 
+  4 & \tikz\draw[black,fill=white] (0,0) circle (.5ex); time/space & CanadaFiresA & 4827 & 46 &  2 &  4 & 7.0 \\ 
+  5 & \tikz\draw[black,fill=white] (0,0) circle (.5ex); time/space & CanadaFiresD & 1491 & 46 &  2 &  4 & 1.6 \\ 
+  6 & \tikz\draw[black,fill=white] (0,0) circle (.5ex); time/space & FishSonar\_river & 2815744 & 81 &  2 &  4 & 1.2 \\ 
+  7 & \tikz\draw[black,fill=white] (0,0) circle (.5ex); time/space & NSCH\_autism & 46010 & 364 &  2 &  2 & 1.5 \\ 
+  8 & \tikz\draw[black,fill=white] (0,0) circle (.5ex); time/space & aztrees3 & 5956 & 21 &  2 &  3 & 2.0 \\ 
+  9 & \tikz\draw[black,fill=white] (0,0) circle (.5ex); time/space & aztrees4 & 5956 & 21 &  2 &  4 & 4.9 \\ 
+  10 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & CIFAR10 & 60000 & 3072 & 10 &  2 & 5.0 \\ 
+  11 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & EMNIST & 70000 & 784 & 10 &  2 & 6.0 \\ 
+  12 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & FashionMNIST & 70000 & 784 & 10 &  2 & 6.0 \\ 
+  13 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & KMNIST & 70000 & 784 & 10 &  2 & 6.0 \\ 
+  14 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & MNIST & 70000 & 784 & 10 &  2 & 6.0 \\ 
+  15 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & QMNIST & 120000 & 784 & 10 &  2 & 1.0 \\ 
+  16 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & STL10 & 13000 & 27648 & 10 &  2 & 1.6 \\ 
+  17 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & spam & 4601 & 57 &  2 &  2 & 2.0 \\ 
+  18 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & vowel & 990 & 10 & 11 &  2 & 1.1 \\ 
+  19 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & waveform & 800 & 21 &  3 &  2 & 1.7 \\ 
+  20 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & zipUSPS & 9298 & 256 & 10 &  2 & 3.6 \\ 
    \hline
 \end{tabular}
 
@@ -392,20 +418,20 @@
   \item In Autism data, there was a slight benefit to combining years.
   \item In fires/trees/fish data, we observed
     significant differences between images/regions/rivers.
-  \item Some pre-defined train/test splits in benchmark data
-    are similar/iid (STL10/waveform), others are not (KMNIST/vowel).
+  \item Some pre-defined train/test subsets in benchmark data
+    are similar (STL10/waveform), others are not (KMNIST/vowel).
   \item Free/open-source R package available in mlr3 framework (easy
-    parallelization over algorithms, train/test splits, data sets)
+    parallelization over algorithms, data sets, train/test splits)
     \url{https://github.com/tdhock/mlr3resampling}
   \item These slides are reproducible, using the code in \url{https://github.com/tdhock/cv-same-other-paper}
   \end{itemize}
 \end{frame}
 
 
-\section{AUM=Area Under Min(FPR,FNR), a new differentiable loss for ROC curve optimization} 
+\section{AUM: Area Under Min(FPR,FNR), a new differentiable loss for ROC curve optimization} 
 
 \begin{frame}
-  \frametitle{Problem: supervised binary classification}
+  \frametitle{Review of supervised binary classification}
   
   \begin{itemize}
   \item Given pairs of inputs $\mathbf x\in\mathbb R^p$ and outputs
@@ -414,10 +440,10 @@
   \item Example: email, $\mathbf x =$bag of words, $y=$spam or not.
   \item Example: images. Jones {\it et al.} PNAS 2009.
     \parbox{2in}{\includegraphics[width=2in]{cellprofiler}}
-    \parbox{1.9in}{Most algorithms (SVM, Logistic regression, etc) minimize a differentiable surrogate of zero-one loss = sum of:\\
-      \textbf{False positives:} $f(\mathbf x)>0$ but $y=0$ (predict
+    \parbox{1.9in}{Gradient descent algorithms (Logistic regression, SVM, etc) minimize a differentiable surrogate of zero-one loss = sum of:\\
+      \textbf{False positives:} $f(\mathbf x)>0$\\but $y=0$ (predict
       budding, but cell is not).\\
-      \textbf{False negatives:} $f(\mathbf x)<0$ but $y=1$ (predict
+      \textbf{False negatives:} $f(\mathbf x)<0$\\but $y=1$ (predict
       not budding, but cell is).  }
   \end{itemize} 
 \end{frame}
@@ -641,6 +667,19 @@ def Proposed_AUM(pred_tensor, label_tensor):
   \includegraphics[width=\textwidth]{gg_aum_grad}
 
   \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparing AUM with weighted logistic loss}
+  \includegraphics[width=\textwidth]{figure-aum-neural-networks-test-auc}
+  \begin{itemize}
+  \item LeNet5 convolutional neural network, batch size 1000.
+  \item Step size from $10^{-4}$ to $10^2$ (keep best).
+  \item AUM rate uses Area Under Min of FPR/FNR, more accurate in
+    these data than AUM count (FP/FN totals), .
+  \item logistic unweighted is usual binary cross-entropy loss (uniform weight=1 for each sample). 
+  \item for logistic weighted, we compute class frequencies, $n_1=\sum_{i=1}^N I[y_i=1]$ and $n_0$ similar; then weights are $w_i=1/n_{y_i}$ so that total weight of positive class equals total weight of negative class.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
