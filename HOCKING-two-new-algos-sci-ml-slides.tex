@@ -111,10 +111,10 @@
   \end{itemize}
 \end{frame}
 
-\section{SOAK: Same/Other/All K-fold cross-validation for comparing models trained on data subsets}
+\section{SOAK: Same/Other/All K-fold cross-validation for estimating similarity of patterns in data subsets (arXiv:2410.08643)}
 
 \begin{frame}
-  \frametitle{$K$-fold cross-validation: a standard algorithm used to estimate the prediction accuracy in machine learning}
+  \frametitle{$K$-fold cross-validation: a standard algorithm used to estimate prediction accuracy in machine learning}
 
   \begin{itemize}
   \item $K=3$ folds shown in figure below, meaning three different
@@ -132,7 +132,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Example data set: predicting childhood autism}
+  \frametitle{Example data with subsets: predicting childhood autism}
 
   \begin{itemize}
   \item Collaboration with Lindly \emph{et al.}
@@ -157,6 +157,8 @@
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
   \item Example: childhood autism prediction data set.
+  \item Subsets of interest are years, which can be represented by
+    adding a new column to the data table.
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-years-1.pdf}
 \end{frame}
@@ -165,6 +167,7 @@
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
   \item Train subset same as test (=regular $K$-fold CV on 2020).
+    \item Can we get a more accurate model than this baseline Same model? (if we train on Other/All years)
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-years-2.pdf}
 \end{frame}
@@ -173,6 +176,7 @@
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
   \item Test subset fixed (2020), train on other subset/year (2019).
+    \item Can we train on one year, and accurately predict on another? Compare Same/Other test error.
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-years-3.pdf}
 \end{frame}
@@ -180,7 +184,9 @@
 \begin{frame}
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
-  \item Train set includes data from both subset/years (2019, 2020).
+  \item Train set includes data from both subsets/years (2019, 2020).
+    \item Can we get a more accurate model by combining data from
+      different years? Compare Same/All test error.
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-years-4.pdf}
 \end{frame}
@@ -189,21 +195,10 @@
   \frametitle{Proposed SOAK algorithm (generic data)}
   \begin{itemize}
   \item Key new idea is \textbf{subset} column in data table.
+  \item Example: $K=3$ folds, two subsets (A/B).
   \item Compute test error for each fold (1/2/3) and subset (A/B).
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-generic}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Proposed SOAK algorithm new to ML frameworks}
-  \small
-  \begin{itemize}
-  \item ML frameworks like scikit-learn and mlr3 implement cross-validation with \textbf{groups} of samples that must stay together when splitting.
-  \item For example (below), satellite image segmentation, trees vs background, Shenkin \emph{et al.}: samples=pixels, grouped by polygon, SOAK subsets are geographical regions (NW, NE, S).
-  \item SOAK: good predictions on one test \textbf{subset},
-    after training on Same/Other/All subsets? (can use together with groups)
-  \end{itemize}
-  \includegraphics[width=\textwidth]{figure-aztrees}
 \end{frame}
 
 \begin{frame}
@@ -216,7 +211,7 @@
   \begin{description}
   \item[All] should be most accurate.
   \item[Same/Other] should be less accurate, because there is less
-    data available (if other is larger than same, then Other should be
+    data available (if more data in Other than in Same, then Other should be
     more accurate than Same, etc).
   \end{description}
 
@@ -232,6 +227,18 @@
       different years? Compare Same/All test error.
   \end{itemize}
 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm new to ML frameworks}
+  \small
+  \begin{itemize}
+  \item ML frameworks like scikit-learn and mlr3 implement cross-validation with \textbf{groups} of samples that must stay together when splitting.
+  \item For example (below), satellite image segmentation, trees vs background, Shenkin \emph{et al.}: samples=pixels, grouped by polygon, SOAK subsets are geographical regions (NW, NE, S).
+  \item SOAK: good predictions on one test \textbf{subset},
+    after training on Same/Other/All subsets? (can use together with groups)
+  \end{itemize}
+  \includegraphics[width=\textwidth]{figure-aztrees}
 \end{frame}
 
 
@@ -312,7 +319,7 @@
 %              <char>         <int>    <int>   <int>    <int> <int> <int> <int>
 % 1:                9          6958      784      10      892 10000 60000    14 
   \item For example MNIST is a data set of images of handwritten
-    digits (want to predict which digit, 0 to 9), with 60,000 images pre-defined as train, and 10,000 images pre-defined as testc.
+    digits (want to predict which digit, 0 to 9), with 60,000 images pre-defined as train, and 10,000 images pre-defined as test.
 % > meta.dt[data.name=="spam"]
 %    data.name memory.kb  rows n.groups            group.tab group.small.name
 %       <char>     <int> <int>    <int>               <char>           <char>
@@ -416,6 +423,8 @@
   \begin{itemize}
   \item Proposed SOAK algorithm shows if
     data subsets are similar enough for learning/prediction.
+  \item It is a concept that is new to ML frameworks\\
+    (proposed \textbf{subset} column/idea not the same as \textbf{group}).
   \item In Autism data, there was a slight benefit to combining years.
   \item In fires/trees/fish data, we observed
     significant differences between images/regions/rivers.
@@ -429,7 +438,7 @@
 \end{frame}
 
 
-\section{AUM: Area Under Min(FPR,FNR), a new differentiable loss for ROC curve optimization} 
+\section{AUM: Area Under Min(FPR,FNR), a new differentiable loss for ROC curve optimization (JMLR'23)} 
 
 \begin{frame}
   \frametitle{Review of supervised binary classification}
@@ -500,30 +509,6 @@
  
 
 \begin{frame}
-  \frametitle{Gradients of sample-based loss are influenced by imbalance}
-  \includegraphics[width=\textwidth]{roc-gradient-arrows}
-  \begin{itemize}
-  \item Left: some imbalance, ~20\% positive labels, gradient 4x
-    stronger along X axis / False Positive Rate.
-  \item Right: large imbalance, ~0.1\% positive labels, gradient 1000x
-    stronger along X axis / False Positive Rate. (True Positive / Y
-    axis gradients essentially ignored)
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Gradients using balanced sample weights, proposed loss}
-  \includegraphics[width=\textwidth]{roc-gradient-arrows-proposed}
-  \begin{itemize}
-  \item Left: gradient 4x
-    stronger along X axis for sample weights=1. Balanced sample
-    weights mean equal influence for gradients along both axes, based on the current prediction threshold.
-  \item Right: proposed method computes gradients based on all ROC
-    points, not just the current prediction threshold.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
   \frametitle{Comparing proposed loss with baselines}
   \begin{itemize}
   \small
@@ -566,7 +551,7 @@
 
 \begin{frame}
   \frametitle{Computing Sum of Min (SM)}
-  \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-aum-rate}
+ \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-heat}
   \vskip -0.2cm
   \begin{itemize}
   \item For $N$ samples, there are $\leq N+1$ points on the ROC curve,
@@ -608,7 +593,8 @@ The AUM can be interpreted as an L1 relaxation of SM,
     [ T_{i} - T_{i-1} ]
                    M_i.\\
 \end{eqnarray*}
-AUM is therefore a surrogate loss for ROC optimization, and it is differentiable almost everywhere $\Rightarrow$ gradient descent learning!
+AUM is therefore a surrogate loss for ROC-SM minimization.\\
+L1 relaxation $\Rightarrow$ constant/non-zero gradients.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -617,7 +603,7 @@ AUM is therefore a surrogate loss for ROC optimization, and it is differentiable
   \begin{verbatim}
 def ROC_curve(pred_tensor, label_tensor):
   sorted_indices=torch.argsort(-pred_tensor)
-  ...
+  ... # torch.cumsum() etc
   return { # a dictionary of torch tensors
     "FPR":FPR, "FNR":FNR, "TPR":1 - FNR,
     "min(FPR,FNR)":torch.minimum(FPR, FNR),
@@ -643,18 +629,16 @@ def ROC_curve(pred_tensor, label_tensor):
 \begin{frame}[fragile]
   \frametitle{AUC and AUM both use ROC curve}
 
-  \begin{itemize}
-  \item ROC AUC and proposed AUM are both implemented by first
-    computing the ROC curve.
-  \end{itemize}
   \begin{verbatim}
 def ROC_AUC(pred_tensor, label_tensor):
+    "Classic metric, but gradient zero almost everywhere"
     roc = ROC_curve(pred_tensor, label_tensor)
     FPR_diff = roc["FPR"][1:]-roc["FPR"][:-1]
     TPR_sum = roc["TPR"][1:]+roc["TPR"][:-1]
     return torch.sum(FPR_diff*TPR_sum/2.0)
 
 def Proposed_AUM(pred_tensor, label_tensor):
+    "Surrogate loss, non-zero gradient for predictions"
     roc = ROC_curve(pred_tensor, label_tensor)
     min_FPR_FNR = roc["min(FPR,FNR)"][1:-1]
     constant_diff = roc["min_constant"][1:].diff()
@@ -685,9 +669,9 @@ def Proposed_AUM(pred_tensor, label_tensor):
   \item LeNet5 convolutional neural network, batch size 1000.
   \item Step size from $10^{-4}$ to $10^2$ (keep best).
   \item AUM rate uses Area Under Min of FPR/FNR, more accurate in
-    these data than AUM count (FP/FN totals), .
+    these data than AUM count (FP/FN totals).
   \item logistic unweighted is usual binary cross-entropy loss (uniform weight=1 for each sample). 
-  \item for logistic weighted, we compute class frequencies, $n_1=\sum_{i=1}^N I[y_i=1]$ and $n_0$ similar; then weights are $w_i=1/n_{y_i}$ so that total weight of positive class equals total weight of negative class.
+  \item for logistic weighted, we compute class frequencies, $n_1=\sum_{i=1}^N I[y_i=1]$ and $n_0$ similar; then weights are $w_i=1/n_{y_i}$ so that total weight of positive class equals total weight of negative class (more accurate in these data).
   \end{itemize}
 \end{frame}
 
@@ -702,7 +686,7 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \item Gradient descent with constant step size, best of $10^{-4}$ to $10^5$.
 \item Full gradient (batch size = number of samples).
 \item Linear model, max iterations = 100,000.
-\item Max Validation AUC comparable or better than baselines: logistic loss and all paired squared hinge (like LibAUC/X-risk).
+\item Max Validation AUC comparable or better than baselines: logistic loss and all paired squared hinge (X-risk etc).
 \item Number of epochs comparable to baselines.
 \item Time per epoch is $O(N \log N)$ (sort), small log factor larger than standard logistic/cross-entropy loss, $O(N)$.
 \end{itemize}
@@ -712,20 +696,20 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \begin{frame}
   \frametitle{Discussion and future work}
   \begin{itemize}
-  \item Classic baselines are simple (sum over samples).
+  \item Classic surrogate loss functions sum over samples.
   \item Proposed AUM loss similar to recent losses that sum over all
     pairs of positive and negative examples (both can be implemented
-    by sorting predicted scores)
+    by sorting predicted scores).
   \item Proposed AUM loss uses a
     different/novel relaxation.
   \item Proposed AUM loss implemented in pytorch code, can be used as a drop-in replacement for logistic/binary cross-entropy loss, \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
   \item Best use with stochastic gradient algorithms?
     At least one positive and one negative example is required in each
     batch.
-  \item Margin-based algorithms like SVM?
-  \item Works well in binary classification, how to adapt to
-    multi-class setting, or other problems such as ranking/information
-    retrieval? (see our JMLR'23 paper for an application to change-point detection, and arXiv:2410.08635 for an efficient line search that exploits the piecewise linear/constant nature of AUM/AUC)
+  \item Algorithms like SVM? (margin/kernel)
+  \item How to adapt to multi-class setting, and other problems such as
+    ranking/information retrieval?
+  \item See our JMLR'23 paper for an application to change-point detection, and arXiv:2410.08635 for an efficient line search that exploits the piecewise linear/constant nature of AUM/AUC.
   \end{itemize}
 \end{frame}
 
@@ -734,8 +718,32 @@ def Proposed_AUM(pred_tensor, label_tensor):
 
   \includegraphics[width=\textwidth]{2022-10-14_ML_group_meeting}
 
-  Contact: toby.dylan.hocking@usherbrooke.ca
+  Please email me if you are interested to collaborate: toby.dylan.hocking@usherbrooke.ca
 
 \end{frame}
 
-\end{document}
+\begin{frame}
+  \frametitle{Gradients of sample-based loss are influenced by imbalance}
+  \includegraphics[width=\textwidth]{roc-gradient-arrows}
+  \begin{itemize}
+  \item Left: some imbalance, ~20\% positive labels, gradient 4x
+    stronger along X axis / False Positive Rate.
+  \item Right: large imbalance, ~0.1\% positive labels, gradient 1000x
+    stronger along X axis / False Positive Rate. (True Positive / Y
+    axis gradients essentially ignored)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Gradients using balanced sample weights, proposed loss}
+  \includegraphics[width=\textwidth]{roc-gradient-arrows-proposed}
+  \begin{itemize}
+  \item Left: gradient 4x
+    stronger along X axis for sample weights=1. Balanced sample
+    weights mean equal influence for gradients along both axes, based on the current prediction threshold.
+  \item Right: proposed method computes gradients based on all ROC
+    points, not just the current prediction threshold.
+  \end{itemize}
+\end{frame}
+
+\end{document} 
