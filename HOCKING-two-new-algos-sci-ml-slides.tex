@@ -497,13 +497,13 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{ROC curves for evaluation, especially useful with imbalance}
+  \frametitle{ROC curves: fair comparison with different default FPR}
 
   \includegraphics[width=0.65\textwidth]{figure-batchtools-expired-earth-roc}
 
   \begin{itemize}
-  \item At default FPR=24\% (D), glmnet has fewer errors.
-  \item At FPR=4\%, xgboost has fewer errors.
+  \item At defaults (D), glmnet has fewer errors (misleading).
+  \item At FPR=4\%, xgboost has fewer errors (fair comparison).
   \end{itemize}
 \end{frame}
 
@@ -588,13 +588,14 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Computing Sum of Min (SM)}
- \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-heat}
+  \frametitle{Computing Sum of Min (SM) over all ROC points}
+  %\includegraphics[width=\textwidth]{figure-more-than-one-new-binary-heat}
+  \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-aum-rate}
   \vskip -0.2cm
   \begin{itemize}
   \item For $N$ samples, there are $\leq N+1$ points on the ROC curve,
-  \item with sorted thresholds $T_1\leq\cdots\leq T_N\in\mathbb R$,
-  \item and corresponding min error values $M_1,\dots,M_N$.
+  \item with $T_1\leq\cdots\leq T_N\in\mathbb R$ (grey lines), sorted thresholds of $c$, 
+  \item and corresponding min error values $M_1,\dots,M_N$ (black).
   \item Then if $I$ is the indicator function, we can write the sum of
     the min (SM), over all ROC points, as:
   \end{itemize}
@@ -613,10 +614,10 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Computing Area Under Min (AUM)}
+  \frametitle{Computing proposed loss, Area Under Min (AUM)}
   \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-aum-rate}
 
-The AUM can be interpreted as an L1 relaxation of SM,
+The proposed AUM can be interpreted as an L1 relaxation of SM,
 
 \begin{eqnarray*}
     \text{SM} &=&
@@ -640,7 +641,7 @@ L1 relaxation $\Rightarrow$ constant/non-zero gradients.
 \small
   \begin{verbatim}
 def ROC_curve(pred_tensor, label_tensor):
-  sorted_indices=torch.argsort(-pred_tensor)
+  sorted_indices = torch.argsort(-pred_tensor)
   ... # torch.cumsum() etc
   return { # a dictionary of torch tensors
     "FPR":FPR, "FNR":FNR, "TPR":1 - FNR,
@@ -665,7 +666,7 @@ def ROC_curve(pred_tensor, label_tensor):
 
 
 \begin{frame}[fragile]
-  \frametitle{AUC and AUM both use ROC curve}
+  \frametitle{AUC and proposed AUM both use ROC curve}
 
   \begin{verbatim}
 def ROC_AUC(pred_tensor, label_tensor):
@@ -687,7 +688,7 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{AUM pytorch code, auto-grad demo}
+  \frametitle{Proposed AUM pytorch code, auto-grad demo}
 
   \begin{itemize}
   \item Assume two samples, $(x_0,y_0=0), (x_1,y_1=1)$,
@@ -700,7 +701,7 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \end{frame}
 
 \begin{frame}
-  \frametitle{Comparing AUM with weighted logistic loss}
+  \frametitle{Comparing proposed AUM with weighted logistic loss}
   \includegraphics[width=\textwidth]{figure-aum-neural-networks-test-auc}
   \begin{itemize}
   \item Two image classification data sets.
