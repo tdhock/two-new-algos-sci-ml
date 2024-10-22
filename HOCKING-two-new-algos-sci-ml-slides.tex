@@ -126,7 +126,7 @@
     classification, yes or no), can we predict it using the others?
   \item 18,202 rows for 2019; 27,808 rows for 2020.
   \end{itemize}
-  Proposed SOAK algorithm is a generalization of standard K-fold cross-validation, that can be used to answer two questions:
+  Proposed SOAK algorithm is a generalization of standard K-fold cross-validation, that can be used to answer two related questions:
   \begin{itemize}
   \item Can we train on one year, and accurately predict on another?
   \item Can we get a more accurate model by combining data from different years?
@@ -463,7 +463,7 @@
     data subsets are similar enough for learning/prediction.
   \item It is a concept that is new to ML frameworks\\
     (proposed \textbf{subset} column/idea not the same as \textbf{group}).
-  \item In Autism data, there was a slight benefit to combining years.
+  \item We observed similarity between years in Autism data (slight benefit to combining years, predicting on new year works).
   \item In fires/trees/fish data, we observed
     significant differences between images/regions/rivers.
   \item Some pre-defined train/test subsets in benchmark data
