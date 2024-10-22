@@ -1,4 +1,4 @@
-\documentclass[t]{beamer}
+\documentclass[t]{beamer} 
 \usepackage{tikz}
 \usepackage[all]{xy}
 \usepackage{amsmath,amssymb}
@@ -594,8 +594,8 @@
   \vskip -0.2cm
   \begin{itemize}
   \item For $N$ samples, there are $\leq N+1$ points on the ROC curve,
-  \item with $T_1\leq\cdots\leq T_N\in\mathbb R$ (grey lines), sorted thresholds of $c$, 
-  \item and corresponding min error values $M_1,\dots,M_N$ (black).
+  \item with sorted thresholds of $c$,  $T_1\leq\cdots\leq T_N\in\mathbb R$ (grey lines), 
+  \item and corresponding min error values $M_2,\dots,M_N$ (black).
   \item Then if $I$ is the indicator function, we can write the sum of
     the min (SM), over all ROC points, as:
   \end{itemize}
@@ -618,20 +618,22 @@
   \includegraphics[width=\textwidth]{figure-more-than-one-new-binary-aum-rate}
 
 The proposed AUM can be interpreted as an L1 relaxation of SM,
-
+\vskip -0.5cm
 \begin{eqnarray*}
-    \text{SM} &=&
+  \text{(gradient zero) } \text{SM} &=&
     \sum_{i=2}^{N}
-    I[ T_{i} \neq T_{i-1} ]
+    \alert{\underbrace{I[ T_{i} \neq T_{i-1} ]}_{\text{L0}}}
     M_i =
     \sum_{i:T_{i} \neq T_{i-1} }
                   M_i.
                                     \\
-    \text{AUM} &=&
+  \text{(gradient non-zero) } \text{AUM} &=&
     \sum_{i=2}^{N}
-    [ T_{i} - T_{i-1} ]
+    \alert{\underbrace{[ T_{i} - T_{i-1} ]}_{\text{L1}}}
                    M_i.\\
 \end{eqnarray*}
+\vskip -0.5cm
+
 AUM is therefore a surrogate loss for ROC-SM minimization.\\
 L1 relaxation $\Rightarrow$ constant/non-zero gradients.
 \end{frame}
@@ -704,7 +706,8 @@ def Proposed_AUM(pred_tensor, label_tensor):
   \frametitle{Comparing proposed AUM with weighted logistic loss}
   \includegraphics[width=\textwidth]{figure-aum-neural-networks-test-auc}
   \begin{itemize}
-  \item Two image classification data sets.
+  \item Image classification data sets (0--4=negative, 5--9 positive).
+  \item Train set 1\% positive, test set balanced.
   \item LeNet5 convolutional neural network, batch size 1000.
   \item Step size from $10^{-4}$ to $10^2$ (keep best).
   \item AUM rate uses Area Under Min of FPR/FNR, more accurate in
@@ -727,7 +730,7 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \item Linear model, max iterations = 100,000.
 \item Max Validation AUC comparable or better than baselines: logistic loss and all paired squared hinge (X-risk etc).
 \item Number of epochs comparable to baselines.
-\item Time per epoch is $O(N \log N)$ (sort), small log factor larger than standard logistic/cross-entropy loss, $O(N)$.
+\item AUM time per epoch is $O(N \log N)$ (sort), small log factor larger than standard logistic/cross-entropy loss, $O(N)$.
 \end{itemize}
 
 \end{frame}
@@ -736,12 +739,12 @@ def Proposed_AUM(pred_tensor, label_tensor):
   \frametitle{Discussion and future work}
   \begin{itemize}
   \item Classic surrogate loss functions sum over samples.
-  \item Proposed AUM loss similar to recent losses that sum over all
-    pairs of positive and negative examples (both can be implemented
-    by sorting predicted scores).
+  \item Proposed AUM loss similar to recent all pairs losses\\
+    (minimal for predicted scores with correct ranks,\\
+    can be implemented by sorting predicted scores).
   \item Proposed AUM loss uses a
-    different/novel relaxation.
-  \item Proposed AUM loss implemented in pytorch code, can be used as a drop-in replacement for logistic/binary cross-entropy loss, \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+    different/novel L1 relaxation.
+  \item Proposed AUM loss can be used as a drop-in replacement for logistic/binary cross-entropy loss. PyTorch code: \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
   \item Best use with stochastic gradient algorithms?
     At least one positive and one negative example is required in each
     batch.
