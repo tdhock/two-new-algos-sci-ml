@@ -139,13 +139,13 @@
   \item Downloaded National Survey of Children's Health (NSCH) data,
     years 2019 and 2020, from
     \url{http://www2.census.gov/programs-surveys/nsch}
-  \item One row per person, one column per survey question.
-  \item Pre-processing to obtain common columns over the two years,
-    remove missing values, one-hot/dummy variable encoding.
-  \item Result is $N=46,010$ rows and $D=366$ columns.
-  \item 18,202 rows for 2019; 27,808 rows for 2020.
+  \item One row per person ($N=46,010$ rows), one column per survey question ($D=366$ columns).
   \item One column is diagnosis with Autism (binary
     classification, yes or no), can we predict it using the others?
+  \item 18,202 rows for 2019; 27,808 rows for 2020.
+  \end{itemize}
+  Proposed SOAK algorithm can be used to answer two questions:
+  \begin{itemize}
   \item Can we train on one year, and accurately predict on another?
   \item Can we get a more accurate model by combining data from different years?
   \end{itemize}
@@ -250,8 +250,9 @@
   $h(\includegraphics[height=1cm]{mnist-0})$?
   
   \begin{itemize}
-  \item Boot image comes from FashionMNIST data, which were used to learn $h$.
-  \item 0 image comes from MNIST data, which were used to learn $g$.
+  \item Create three data sets by combining MNIST with variants:
+    EMNIST, EMNIST\_rot, FashionMNIST.
+  \item Each of these three new data sets has two subsets: MNIST/variant.
   \end{itemize}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_1.png}
@@ -318,8 +319,9 @@
 %    label.large.name label.large.N features classes min.rows  test train test%
 %              <char>         <int>    <int>   <int>    <int> <int> <int> <int>
 % 1:                9          6958      784      10      892 10000 60000    14 
-  \item For example MNIST is a data set of images of handwritten
-    digits (want to predict which digit, 0 to 9), with 60,000 images pre-defined as train, and 10,000 images pre-defined as test.
+  \item For example KMNIST is an image classification data set with \\
+    60,000 images in a pre-defined train subset, and \\
+    10,000 images in a pre-defined test subset.
 % > meta.dt[data.name=="spam"]
 %    data.name memory.kb  rows n.groups            group.tab group.small.name
 %       <char>     <int> <int>    <int>               <char>           <char>
@@ -330,22 +332,58 @@
 %    label.large.name label.large.N features classes min.rows  test train test%
 %              <char>         <int>    <int>   <int>    <int> <int> <int> <int>
 % 1:                1          1813       57       2      595  1536  3065    33
-  \item spam is a data set of emails (want to predict spam or not,
-    binary), with 3065 train and 1536 test emails.
+  \item STL10 is another image classification data set with \\
+    5000 images in a pre-defined train subset, and \\
+    8000 images in a pre-defined test subset.
   \item Are the learnable/predictable patterns in the pre-defined train/test subsets
-    similar?
-  \item Or are they different? 
+    similar? (expected if random sampling was used to create pre-defined subsets)
+  \item Or are they different?
+  \item Use pre-defined train/test subsets in SOAK, to see if patterns are learnable/predictable across pre-defined subsets.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Benchmark data with pre-defined train/test subsets}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd_similar_all_test}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd_different_all_test}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd_similar_all_train}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd_different_all_train}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd_other_similar_train}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd_other_different_train}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
+  \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd_other_test}
+\end{frame}
+ 
+\begin{frame}
+  \frametitle{Benchmark data with pre-defined train/test subsets}
   \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd}
   \vskip -0.5cm
   \begin{itemize}
-  \item Use pre-defined train/test subsets in SOAK, to see if patterns are learnable/predictable in different pre-defined subsets.
-  \item Left, similar subsets, all error less than same. (expected)
-  \item Right, different subsets, all error greater than same. (surprising)
+  \item Left data sets have similar pre-defined train/test subsets (expected), All error is always less than Same, and Other error is either greater or less than same, depending on subset sizes. 
+  \item Right data sets have different pre-defined train/test subsets (surprising), All error is always greater than or equal to Same, and Other error is always greater than Same.
   \end{itemize}
 \end{frame}
 
