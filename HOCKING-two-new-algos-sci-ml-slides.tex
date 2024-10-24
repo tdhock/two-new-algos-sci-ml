@@ -246,21 +246,21 @@
 \begin{frame}
   \frametitle{ImagePair data: train on MNIST and accurately predict on MNIST variants?}
 
-  Recall: what happens if you do
-  $g(\includegraphics[height=1cm]{fashion-mnist-boot})$, or
-  $h(\includegraphics[height=1cm]{mnist-0})$?
-  
   \begin{itemize}
-  \item Create three data sets by combining MNIST with variants:
+  \item Expect: $g(\includegraphics[height=1cm]{fashion-mnist-boot})$ and
+    $h(\includegraphics[height=1cm]{mnist-0})$ are not accurate.
+  \item But train on MNIST, predict on EMNIST\_rot (upright digits) should be
+    possible, right? (Vote!) Let's use SOAK to find out!
+  \item Create three new IPair data sets by combining MNIST with variants:
     EMNIST, EMNIST\_rot, FashionMNIST.
-  \item Each of these three new data sets has two subsets: MNIST/variant.
-  \end{itemize}
+  \item Each data set has two subsets: MNIST/variant.
+ \end{itemize}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_1.png}
 \end{frame}
 
 \begin{frame}
-  \frametitle{SOAK for MNIST+FashionMNIST data}
+  \frametitle{SOAK for MNIST+FashionMNIST (IPair\_Fashion data set)}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_FashionMNIST.png}
   
@@ -269,27 +269,29 @@
   \item \textbf{cv\_glmnet} is L1-regularized linear model.
   \item \textbf{featureless} baseline always predicts most frequent class.
   \item \textbf{Other cv\_glmnet} has greater test error than
-    \textbf{featureless}, which indicates that the patterns are too
-    different for the linear model to learn anything useful for prediction. 
+    \textbf{featureless}.
+  \item The patterns in the two subsets are too different for \textbf{Other cv\_glmnet} to learn
+    anything useful for prediction. (expected)
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{SOAK for MNIST+EMNIST data}
+  \frametitle{SOAK for MNIST+EMNIST (IPair\_E data set)}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST.png}
   
   \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD.png}
   \begin{itemize}
   \item \textbf{Other cv\_glmnet} has significantly smaller test error
-    than \textbf{featureless}, so something is learned/transferable between
-    data sets, but it is still clear that the pattern is very
-    different.
+    than \textbf{featureless}, so linear model learns something that useful for predicting on the other subset.
+  \item But since \textbf{Other} error rate is much larger than
+    \textbf{Same}, clearly the pattern is very different between
+    MNIST/EMNIST.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{SOAK for MNIST+EMNIST\_rot data}
+  \frametitle{SOAK for MNIST+EMNIST\_rot (IPair\_E\_rot data set)}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
   
@@ -298,9 +300,9 @@
   \item \textbf{Other cv\_glmnet} has even smaller test error,
     indicating even more similarity between MNIST and EMNIST\_rot data
     sets.
-  \item But \textbf{Other/All} test error are still not as small as \textbf{Same},
-    indicating there is a significant difference between
-    learnable/predictable patterns in MNIST/EMNIST\_rot data.
+  \item But \textbf{Other/All} test error are still not as small as \textbf{Same}.
+  \item Significant difference between patterns learnable/predictable
+    by linear model in MNIST/EMNIST\_rot. (surprising)
   \end{itemize}
 \end{frame}
 
@@ -338,7 +340,6 @@
     8000 images in a pre-defined test subset.
   \item Are the learnable/predictable patterns in the pre-defined train/test subsets
     similar? (expected if random sampling was used to create pre-defined subsets)
-  \item Or are they different?
   \item Use pre-defined train/test subsets in SOAK, to see if patterns are learnable/predictable across pre-defined subsets.
   \end{itemize}
 \end{frame}
@@ -460,19 +461,23 @@
 \begin{frame}
   \frametitle{Discussion and Conclusions}
   \begin{itemize}
-  \item Proposed SOAK algorithm shows if
-    data subsets are similar enough for learning/prediction.
-  \item It is a concept that is new to ML frameworks\\
+  \item Proposed SOAK algorithm estimates similarity of
+    learnable patterns between 
+    subsets (space, time, etc).
+  \item SOAK idea is new to ML frameworks\\
     (proposed \textbf{subset} column/idea not the same as \textbf{group}).
+  \item Free/open-source R package available in mlr3 framework (easy
+    parallelization over algorithms, data sets, train/test splits)
+    \url{https://github.com/tdhock/mlr3resampling}
+  \item Ran SOAK in parallel over 20 classification data sets, 10
+    folds, 2--4 subsets, Same/Other/All (1200+ train/test splits).
+  \item Train on MNIST, predict on FashionMNIST (impossible), predict
+    on EMNIST (surprisingly difficult, both are digits).
   \item We observed similarity between years in Autism data (slight benefit to combining years, predicting on new year works).
   \item In fires/trees/fish data, we observed
     significant differences between images/regions/rivers.
   \item Some pre-defined train/test subsets in benchmark data
     are similar (STL10/waveform), others are not (KMNIST/vowel).
-  \item Free/open-source R package available in mlr3 framework (easy
-    parallelization over algorithms, data sets, train/test splits)
-    \url{https://github.com/tdhock/mlr3resampling}
-  \item These slides are reproducible, using the code in \url{https://github.com/tdhock/cv-same-other-paper}
   \end{itemize}
 \end{frame}
 
@@ -758,12 +763,11 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \end{frame}
 
 \begin{frame}
-  \frametitle{Thanks to my students and collaborators!}
+  Thanks! Please email me if you are interested to collaborate: toby.dylan.hocking@usherbrooke.ca
 
   \includegraphics[width=\textwidth]{2022-10-14_ML_group_meeting}
 
-  Please email me if you are interested to collaborate: toby.dylan.hocking@usherbrooke.ca
-
+  Reproducible slide/figure source code: \url{https://github.com/tdhock/cv-same-other-paper} \url{https://github.com/tdhock/max-generalized-auc}
 \end{frame}
 
 \begin{frame}
