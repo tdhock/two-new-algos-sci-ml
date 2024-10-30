@@ -1,3 +1,5 @@
+## Title, abstract, slides
+
 Title: Two new algorithms for scientific applications of machine learning
 
 Speaker: Toby Dylan HOCKING, https://tdhock.github.io/
