@@ -1,4 +1,4 @@
-## Title, abstract, slides
+** Title, abstract, slides
 
 Title: Two new algorithms for scientific applications of machine learning
 
