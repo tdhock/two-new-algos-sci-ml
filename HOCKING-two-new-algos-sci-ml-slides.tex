@@ -242,6 +242,39 @@
   \includegraphics[width=\textwidth]{figure-aztrees}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (geographical data example)}
+  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-same}
+
+  \begin{itemize}
+  \item Say we want good prediction in western USA.
+  \item One of the K test sets is: subset=West and fold=1.
+  \item Train on Same (West, fold$\neq$1) establishes a baseline.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (geographical data example)}
+  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-all}
+
+  \begin{itemize}
+  \item Train on All (West+East, fold$\neq$1) would be less accurate
+    than Same if subsets are different, and more accurate if subsets
+    are similar (more relevant training data).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (geographical data example)}
+  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-other}
+
+  \begin{itemize}
+  \item Train on Other (East, fold$\neq$1) would be less accurate than
+    Same if subsets are different.
+  \item If subsets are similar, then the larger of Same and Other should be
+    more accurate (more relevant training data).
+  \end{itemize}
+\end{frame}
 
 \begin{frame}
   \frametitle{ImagePair data: train on MNIST and accurately predict on MNIST variants?}
