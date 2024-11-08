@@ -124,7 +124,7 @@
   \item One row per person ($N=46,010$ rows), one column per survey question ($D=366$ columns). 
   \item Output/label column is diagnosis with Autism\\
     (binary classification, yes or no),\\
-    can we predict it using the 365 inputs/features?
+    can we predict it using the 365 inputs/features? 
   \item 18,202 rows for 2019; 27,808 rows for 2020.
   \end{itemize}
   Proposed SOAK algorithm is a generalization of standard K-fold cross-validation, that can be used to answer two related questions:
@@ -476,8 +476,8 @@
   \item We observed similarity between years in Autism data (slight benefit to combining years, predicting on new year works).
   \item In fires/trees/fish data, we observed
     significant differences between images/regions/rivers.
-  \item Some pre-defined train/test subsets in benchmark data
-    are similar (STL10/waveform), others are not (KMNIST/vowel).
+  \item Most pre-defined train/test subsets in benchmark data
+    are similar (STL10/waveform), some are not (KMNIST/vowel).
   \end{itemize}
 \end{frame}
 
