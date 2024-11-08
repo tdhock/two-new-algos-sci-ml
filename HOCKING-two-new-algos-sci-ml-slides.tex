@@ -53,7 +53,7 @@
 
 \maketitle
 
-\section{Introduction: two common questions in collaborations involving applications of machine learning}
+\section{Introduction: two common questions in collaborations involving scientific applications of machine learning}
 
 \begin{frame}
   \frametitle{Learning two different functions using two data sets}
@@ -111,7 +111,7 @@
   \end{itemize}
 \end{frame}
 
-\section{SOAK: Same/Other/All K-fold cross-validation for estimating similarity of patterns in data subsets (arXiv:2410.08643)}
+\section{Train on one subset and accurately predict on another? \\ SOAK: Same/Other/All K-fold cross-validation for estimating similarity of patterns in data subsets (arXiv:2410.08643)}
 
 \begin{frame}
   \frametitle{Example data with subsets: predicting childhood autism}
@@ -384,7 +384,7 @@
   \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd}
   \vskip -0.5cm
   \begin{itemize}
-  \item Left data sets have similar pre-defined train/test subsets (expected), All error is always less than Same, and Other error is either greater or less than same, depending on subset sizes. 
+  \item Left data sets have similar pre-defined train/test subsets (expected), All error is always less than Same, and Other error is either greater or less than Same, depending on subset sizes. 
   \item Right data sets have different pre-defined train/test subsets (surprising), All error is always greater than or equal to Same, and Other error is always greater than Same.
   \end{itemize}
 \end{frame}
@@ -473,6 +473,8 @@
     folds, 2--4 subsets, Same/Other/All (1200+ train/test splits).
   \item Train on MNIST, predict on FashionMNIST (impossible), predict
     on EMNIST (surprisingly difficult, both are digits).
+  \item Most pre-defined train/test subsets in benchmark data
+    are similar (STL10/waveform), some are not (KMNIST/vowel).
   \item We observed similarity between years in Autism data (slight benefit to combining years, predicting on new year works).
   \item In fires/trees/fish data, we observed
     significant differences between images/regions/rivers.
@@ -482,7 +484,7 @@
 \end{frame}
 
 
-\section{AUM: Area Under Min(FPR,FNR), a new differentiable loss for ROC curve optimization (JMLR'23)} 
+\section{How to deal with class imbalance? \\ AUM: Area Under Min(FPR,FNR), a new differentiable loss for ROC curve optimization (JMLR'23)} 
 
 \begin{frame}
   \frametitle{Review of supervised binary classification}
@@ -735,7 +737,7 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \item Gradient descent with constant step size, best of $10^{-4}$ to $10^5$.
 \item Full gradient (batch size = number of samples).
 \item Linear model, max iterations = 100,000.
-\item Max Validation AUC comparable or better than baselines: logistic loss and all paired squared hinge (X-risk etc).
+\item Max Validation AUC comparable or better than baselines: logistic loss and all paired squared hinge.
 \item Number of epochs comparable to baselines.
 \item AUM time per epoch is $O(N \log N)$ (sort), small log factor larger than standard logistic/cross-entropy loss, $O(N)$.
 \end{itemize}
@@ -745,20 +747,23 @@ def Proposed_AUM(pred_tensor, label_tensor):
 \begin{frame}
   \frametitle{Discussion and future work}
   \begin{itemize}
-  \item Classic surrogate loss functions sum over samples.
-  \item Proposed AUM loss similar to recent all pairs losses\\
-    (minimal for predicted scores with correct ranks,\\
-    can be implemented by sorting predicted scores).
-  \item Proposed AUM loss uses a
-    different/novel L1 relaxation.
-  \item Proposed AUM loss can be used as a drop-in replacement for logistic/binary cross-entropy loss. PyTorch code: \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+  \item Classic classification losses are L1 relaxations of the zero-one loss, defined as a sum over samples.
+  % \item Proposed AUM loss similar to recent all pairs losses\\
+  %   (minimal for predicted scores with correct ranks,\\
+  %   can be implemented by sorting predicted scores).
+  \item Proposed AUM loss is an L1 relaxation defined as a sum over
+    points on the ROC curve (requires sorting predicted scores).
+  \item Proposed AUM loss can be used in gradient descent instead of logistic/binary cross-entropy loss. PyTorch code: \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
   \item Best use with stochastic gradient algorithms?
     At least one positive and one negative example is required in each
     batch.
   \item Algorithms like SVM? (margin/kernel)
   \item How to adapt to multi-class setting, and other problems such as
     ranking/information retrieval?
-  \item See our JMLR'23 paper for an application to change-point detection, and arXiv:2410.08635 for an efficient line search that exploits the piecewise linear/constant nature of AUM/AUC.
+  \item See our JMLR'23 paper for an application to supervised
+    change-point detection, and arXiv:2410.08635 for an efficient line
+    search that exploits the piecewise linear/constant nature of
+    AUM/AUC.
   \end{itemize}
 \end{frame}
 
