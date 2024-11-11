@@ -40,10 +40,9 @@ Slides PDF [[file:HOCKING-two-new-algos-sci-ml-slides.pdf]]
 Source files
 - [[file:HOCKING-two-new-algos-sci-ml-slides.tex]]
 - https://github.com/tdhock/max-generalized-auc
-- https://github.com/tdhock/cv-same-other-paper
+- https://github.com/tdhock/cv-same-other-paper with [[https://github.com/tdhock/cv-same-other-paper?tab=readme-ov-file#9-apr-2024][older slides showing different details]].
 
 Software
 - [[https://cloud.r-project.org/web/packages/mlr3resampling/][mlr3resampling]] R package implements SOAK algorithm, [[https://cloud.r-project.org/web/packages/mlr3resampling/vignettes/Newer_resamplers.html][tutorial]].
 - [[https://tdhock.github.io/blog/2024/torch-roc-aum/][AUC and AUM in torch]] blog explaining how to implement AUM.
 - [[https://cloud.r-project.org/web/packages/aum/][aum]] R package implements directional derivatives and efficient line search.
-
