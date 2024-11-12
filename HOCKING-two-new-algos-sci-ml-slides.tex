@@ -293,11 +293,11 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{SOAK for MNIST+FashionMNIST (IPair\_Fashion data set)}
+  \frametitle{SOAK for IPair\_Fashion data set (MNIST+FashionMNIST)}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_FashionMNIST.png}
-  
-  \includegraphics[width=\textwidth]{MNIST_FashionMNIST_error_glmnet_featureless_mean_SD.png}
+
+  \includegraphics[width=\textwidth]{MNIST_FashionMNIST_error_glmnet_featureless_mean_SD_zoom.png}
   \begin{itemize}
   \item \textbf{cv\_glmnet} is L1-regularized linear model.
   \item \textbf{featureless} baseline always predicts most frequent class.
@@ -309,11 +309,11 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{SOAK for MNIST+EMNIST (IPair\_E data set)}
+  \frametitle{SOAK for IPair\_E data set (MNIST+EMNIST)}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST.png}
   
-  \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD.png}
+  \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD_zoom.png}
   \begin{itemize}
   \item \textbf{Other cv\_glmnet} has significantly smaller test error
     than \textbf{featureless}, so linear model learns something that useful for predicting on the other subset.
@@ -324,11 +324,11 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{SOAK for MNIST+EMNIST\_rot (IPair\_E\_rot data set)}
+  \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot)}
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
   
-  \includegraphics[width=\textwidth]{MNIST_EMNIST_rot_error_glmnet_featureless_mean_SD.png}
+  \includegraphics[width=\textwidth]{MNIST_EMNIST_rot_error_glmnet_featureless_mean_SD_zoom.png} 
   \begin{itemize}
   \item \textbf{Other cv\_glmnet} has even smaller test error,
     indicating even more similarity between MNIST and EMNIST\_rot data
