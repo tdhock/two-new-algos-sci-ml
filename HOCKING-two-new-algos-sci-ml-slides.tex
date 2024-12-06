@@ -497,8 +497,7 @@
   \item Proposed SOAK algorithm estimates similarity of
     learnable patterns between 
     subsets (space, time, etc).
-  \item SOAK idea is new to ML frameworks\\
-    (proposed \textbf{subset} column/idea not the same as \textbf{group}).
+  \item SOAK idea is new to ML frameworks (proposed \textbf{subset} column/idea not the same as \textbf{group}/\textbf{stratum}).
   \item Free/open-source R package available in mlr3 framework (easy
     parallelization over algorithms, data sets, train/test splits)
     \url{https://github.com/tdhock/mlr3resampling}
@@ -894,6 +893,58 @@ selection, etc). For details see Hastie, {\it et al.} (2009) textbook.
   \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Stratified fold assignment, 10-fold CV}
 
+\begin{verbatim}
+> folds <- function(by){set.seed(1);
++ data.table(label=rep(0:1,c(100,900)))[
++ , fold := sample(rep(1:10,l=.N)), by
++ ][, table(label, fold)]}
+> folds()
+     fold
+label  1  2  3  4  5  6  7  8  9 10
+    0 13 13  4 10 13  7 12  8  9 11
+    1 87 87 96 90 87 93 88 92 91 89
+> folds("label")
+     fold
+label  1  2  3  4  5  6  7  8  9 10
+    0 10 10 10 10 10 10 10 10 10 10
+    1 90 90 90 90 90 90 90 90 90 90
+\end{verbatim}
+
+  With stratification by label, we get the same label counts in each
+  fold.
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{ML framework feature comparison}
+
+  \begin{tabular}{cccc}
+    Language & R& & python   \\
+    Framework & mlr3& how? &  scikit-learn \\
+    \hline
+    Learners & multiple & benchmark\_grid & single \\
+    Parallelization & yes & mlr3batchmark & no   \\
+    Subsets(proposed) & yes & mlr3resampling & no  \\
+  \end{tabular}
+
+  \begin{itemize}
+  \item mlr3 supports parallelization over algorithm, data sets, and
+    train/test splits via mlr3batchmark package (ex: SLURM).
+  \item scikit-learn cross\_validate computes test error for a single algorithm (no special parallelization support).
+  \item
+  For an example of how to use stratum, subset, and group in mlr3, see ``Arizona trees data'' section of
+  \url{https://cloud.r-project.org/web/packages/mlr3resampling/vignettes/Newer_resamplers.html}
+  \item 
+  Scikit-learn
+  \url{https://scikit-learn.org/stable/modules/cross_validation.html#stratifiedgroupkfold}
+  supports group, and stratification by class, but not subset.
+  \end{itemize}
+
+
+  
+\end{frame}
 
 \end{document} 
