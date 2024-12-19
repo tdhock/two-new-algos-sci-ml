@@ -231,6 +231,27 @@
 % \end{frame}
 
 \begin{frame}
+  \frametitle{Related work}
+  \begin{itemize}
+  \item Same/Other comparison has been used to evaluate
+    \textbf{out-of-distribution predictions}, for example in computer vision,
+    evaluating predictions on images with new position/rotation/scale
+    values (Madan \emph{et al.}, 2020).
+  \item Farahani \emph{et al.} (2021) review \textbf{domain adaptation}
+    algorithms, and refer to the Other model as ``unsupervised domain
+    adaptation'' because there are no labels available in the target
+    domain (comparison with Same is not often present).
+  \item \textbf{Algorithmic bias/fairness} benchmark data have interesting
+    demographic subsets that could be used in SOAK (for example
+    gender, race, etc), but this literature does not often discuss
+    details of how cross-validation is used (Savoldi \emph{et al.}, 2021).
+  \item \textbf{Spatial cross-validation} has been used in geographical
+    data analysis, and can be viewed as the ``Other'' model in SOAK
+    (Ploton \emph{et al.}, 2020).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
   \frametitle{Proposed SOAK algorithm new to ML frameworks}
   \small
   \begin{itemize}
@@ -480,7 +501,6 @@
   20 & \tikz\draw[black,fill=red] (0,0) circle (.5ex); train/test & zipUSPS & 9298 & 256 & 10 &  2 & 3.6 \\ 
    \hline
 \end{tabular}
-
 \end{frame}
 
 \begin{frame}
@@ -492,7 +512,7 @@
 \end{frame}
  
 \begin{frame}
-  \frametitle{Discussion and Conclusions}
+  \frametitle{Summary of contributions}
   \begin{itemize}
   \item Proposed SOAK algorithm estimates similarity of
     learnable patterns between 
