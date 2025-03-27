@@ -362,6 +362,23 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot)}
+
+  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
+
+  \includegraphics[width=\textwidth]{conv_images_10fold_figure_pval}
+
+  \begin{itemize}
+  \item For conv. net, test error for \textbf{Other} is still larger than \textbf{Same} (can't train on one subset and predict optimally on the other).
+  \item Test error for \textbf{All} is smaller than \textbf{Same} ---
+    can combine subsets when training, for more accurate predictions.
+  \end{itemize}
+  %  --- slightly beneficial to combine
+  % subsets when training with this algorithm (but not with linear
+  % model).
+\end{frame}
+
+\begin{frame}
   \frametitle{Benchmark data with pre-defined train/test subsets}
   \begin{itemize}
   \item Machine learning researchers evaluate new algorithms using
@@ -1025,6 +1042,15 @@ label  1  2  3  4  5  6  7  8  9 10
   \url{https://scikit-learn.org/stable/modules/cross_validation.html#stratifiedgroupkfold}
   supports group, and stratification by class, but not subset.
   \end{itemize}
+
+\begin{frame}
+  \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot)}
+
+  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
+
+  \includegraphics[width=\textwidth]{conv_images_figures_same_other.png}
+  Convolutional neural network (torch\_conv) has smaller test error than linear model; \textbf{Same} still has smaller test error than \textbf{Other}.
+\end{frame}
 
 
   
