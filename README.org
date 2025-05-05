@@ -65,3 +65,41 @@ Software
 - [[https://cloud.r-project.org/web/packages/mlr3resampling/][mlr3resampling]] R package implements SOAK algorithm, [[https://cloud.r-project.org/web/packages/mlr3resampling/vignettes/Newer_resamplers.html][tutorial]].
 - [[https://tdhock.github.io/blog/2024/torch-roc-aum/][AUC and AUM in torch]] blog explaining how to implement AUM.
 - [[https://cloud.r-project.org/web/packages/aum/][aum]] R package implements directional derivatives and efficient line search.
+
+** Revised abstract
+
+Thanks to Valentina Boeva for the revision.
+
+Transfer Learning and Imbalanced Classification in Scientific Machine Learning
+Speaker: Prof. Dr. Toby Dylan Hocking
+Host: Prof. Dr. Valentina Boeva
+When: May 7, 2025, 15:00.
+Room:  H52, CAB, Universitatstrasse 6, 8006, Zurich
+
+Abstract
+
+Machine learning is increasingly being adopted in scientific fields by
+domain experts who are not machine learning specialists. Yet,
+recurring challenges arise in these collaborations:
+1.  Generalization across domains: How well does a model trained on
+   data from one region or time period transfer to another?
+2.  Class imbalance: How can we effectively learn from data when the
+   positive class is rare?
+In this talk, I will present two new algorithms developed to address
+these challenges, motivated by real-world scientific applications:
+  *   SOAK (Same/Other/All K-fold Cross-Validation): a novel
+    cross-validation framework to quantify and diagnose the extent of
+    domain generalization across data subsets (e.g., geographic
+    regions, temporal slices).
+  *   A differentiable ROC-based loss function: a new loss function
+    designed to directly optimize ROC-AUC in the presence of severe
+    class imbalance, compatible with deep learning architectures.
+I will illustrate these methods through case studies in remote sensing
+(predicting forest attributes across regions from satellite imagery)
+and computational psychiatry (predicting autism diagnosis across
+survey years). The talk will discuss both the algorithmic ideas and
+their practical implications for machine learning in scientific
+settings.
+
+Bio
+Toby Dylan Hocking is an Associate Professor of Computer Science at Université de Sherbrooke and an Associate Academic Member at Mila – Quebec Artificial Intelligence Institute. His research focuses on developing machine learning algorithms and statistical software for scientific applications, with an emphasis on interpretable models, cross-validation, and imbalanced classification. He directs the LASSO research lab (Learning Algorithms, Statistical Software, Optimization). Toby earned his PhD in mathematics (machine learning) from École Normale Supérieure de Cachan (France) and has held research positions at Tokyo Tech, McGill University, and Northern Arizona University. He has authored dozens of R packages and published over 40 peer-reviewed papers in machine learning and statistical computing. He has mentored over 30 research students and 30 contributors in Google Summer of Code through the R Project.
