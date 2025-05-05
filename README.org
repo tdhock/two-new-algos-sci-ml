@@ -101,5 +101,17 @@ survey years). The talk will discuss both the algorithmic ideas and
 their practical implications for machine learning in scientific
 settings.
 
-Bio
-Toby Dylan Hocking is an Associate Professor of Computer Science at Université de Sherbrooke and an Associate Academic Member at Mila – Quebec Artificial Intelligence Institute. His research focuses on developing machine learning algorithms and statistical software for scientific applications, with an emphasis on interpretable models, cross-validation, and imbalanced classification. He directs the LASSO research lab (Learning Algorithms, Statistical Software, Optimization). Toby earned his PhD in mathematics (machine learning) from École Normale Supérieure de Cachan (France) and has held research positions at Tokyo Tech, McGill University, and Northern Arizona University. He has authored dozens of R packages and published over 40 peer-reviewed papers in machine learning and statistical computing. He has mentored over 30 research students and 30 contributors in Google Summer of Code through the R Project.
+Bio: Toby Dylan Hocking is an Associate Professor of Computer Science
+at Université de Sherbrooke and an Associate Academic Member at Mila –
+Quebec Artificial Intelligence Institute. His research focuses on
+developing machine learning algorithms and statistical software for
+scientific applications, with an emphasis on interpretable models,
+cross-validation, and imbalanced classification. He directs the LASSO
+research lab (Learning Algorithms, Statistical Software,
+Optimization). Toby earned his PhD in mathematics (machine learning)
+from École Normale Supérieure de Cachan (France) and has held research
+positions at Tokyo Tech, McGill University, and Northern Arizona
+University. He has authored dozens of R packages and published over 40
+peer-reviewed papers in machine learning and statistical computing. He
+has mentored over 30 research students and 30 contributors in Google
+Summer of Code through the R Project.
