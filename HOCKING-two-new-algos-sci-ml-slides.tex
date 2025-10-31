@@ -572,6 +572,23 @@
   \end{itemize} 
 \end{frame}
 
+\begin{frame} \frametitle{Evaluating imbalanced binary classification}
+
+  \begin{itemize}
+  \item How do we know if our learning algorithm is working?
+  \item Ex: neural network predicts 95\% labels accurately in test set.
+  \item Is this good or bad? It depends.
+  \item 3\% autism, 97\% not: 95\% accuracy is worse than featureless
+    baseline! (which always predicts most frequent class, 97\% accuracy)
+  \item 50\% positive, 50\% negative (balanced labels): 95\% accuracy
+    is definitely better than featureless baseline (50\% accuracy).
+  \item ROC curves are useful because featureless baseline always has
+    Area Under Curve (AUC) of 0.5.
+  \item AUC$>0.5$ means the algorithm has learned something non-trivial.
+  \end{itemize}
+  
+\end{frame}
+
 \begin{frame} \frametitle{ROC curves: fair comparison with different default FPR}
   \includegraphics[width=0.65\textwidth]{figure-batchtools-expired-earth-roc}
   \begin{itemize}
@@ -762,82 +779,6 @@ def Proposed_AUM(pred_tensor, label_tensor):
   \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Proposed AUM pytorch code, auto-grad demo}
-
-  \begin{itemize}
-  \item Assume two samples, $(x_0,y_0=0), (x_1,y_1=1)$,
-  \item Plot objective and gradient with respect to predicted scores.
-  \end{itemize}
-
-  \includegraphics[width=\textwidth]{gg_aum_grad}
-
-  \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{ROC curve R torch code uses argsort}
-\small
-  \begin{verbatim}
-ROC_curve <- function(pred_tensor, label_tensor){
-  sorted_indices = torch_argsort(-pred_tensor$flatten())
-... # $cumsum() $diff() etc.
-  list(FPR=FPR, FNR=FNR, TPR=1 - FNR, 
-    "min(FPR,FNR)"=torch_minimum(FPR, FNR),
-    min_constant=torch_cat(c(torch_tensor(-Inf), uniq_thresh)),
-    max_constant=torch_cat(c(uniq_thresh, torch_tensor(Inf))))
-}
-> L <- ROC_curve(torch_tensor(c(2,-3.5,-1,1.5)),
-+                torch_tensor(c(0,   0, 1,  1)))
-> data.frame(lapply(L, torch::as_array), check.names=FALSE)
-  FPR FNR TPR min.FPR.FNR. min_constant max_constant
-1 0.0 1.0 0.0          0.0         -Inf         -2.0
-2 0.5 1.0 0.0          0.5         -2.0         -1.5
-3 0.5 0.5 0.5          0.5         -1.5          1.0
-4 0.5 0.0 1.0          0.0          1.0          3.5
-5 1.0 0.0 1.0          0.0          3.5          Inf
-\end{verbatim}
-
-    \url{https://tdhock.github.io/blog/2024/auto-grad-overhead/}
-
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{R code for AUC and proposed AUM both use ROC curve}
-
-  \begin{verbatim}
-ROC_AUC <- function(pred_tensor, label_tensor){
-  roc = ROC_curve(pred_tensor, label_tensor)
-  FPR_diff = roc$FPR[2:N]-roc$FPR[1:-2]
-  TPR_sum = roc$TPR[2:N]+roc$TPR[1:-2]
-  torch_sum(FPR_diff*TPR_sum/2.0)
-}
-Proposed_AUM <- function(pred_tensor, label_tensor){
-  roc = ROC_curve(pred_tensor, label_tensor)
-  min_FPR_FNR = roc[["min(FPR,FNR)"]][2:-2]
-  constant_diff = roc$min_constant[2:N]$diff()
-  torch_sum(min_FPR_FNR * constant_diff)
-}
-\end{verbatim}
-
-\small  \url{https://tdhock.github.io/blog/2024/auto-grad-overhead/}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Proposed AUM R torch code, auto-grad demo}
-
-  \begin{itemize}
-  \item Assume two samples, $(x_0,y_0=0), (x_1,y_1=1)$,
-  \item Plot objective and gradient with respect to predicted scores.
-  \item Compare explicit gradient with auto-grad from torch.
-  \end{itemize}
-
-  \includegraphics[width=\textwidth]{autoVsExplicitSubGradients-1}
-
-  \small
-  \url{https://tdhock.github.io/blog/2024/auto-grad-overhead/}
-\end{frame}
-
 \begin{frame}
   \frametitle{Comparing proposed AUM with weighted logistic loss}
   \includegraphics[width=\textwidth]{figure-aum-neural-networks-test-auc}
@@ -860,7 +801,7 @@ Proposed_AUM <- function(pred_tensor, label_tensor){
 \includegraphics[width=\textwidth]{data_Classif_batchtools_best_valid_scatter}
 
 \begin{itemize}
-\item Unbalanced binary classification: 10\% negative, 90\% positive.
+\item Imbalanced binary classification: 10\% negative, 90\% positive.
 \item Gradient descent with constant step size, best of $10^{-4}$ to $10^5$.
 \item Full gradient (batch size = number of samples).
 \item Linear model, max iterations = 100,000.
@@ -1050,6 +991,82 @@ label  1  2  3  4  5  6  7  8  9 10
   Convolutional neural network (torch\_conv) has smaller test error than linear model; \textbf{Same} still has smaller test error than \textbf{Other}.
 \end{frame}
 
+
+\begin{frame}[fragile]
+  \frametitle{Proposed AUM pytorch code, auto-grad demo}
+
+  \begin{itemize}
+  \item Assume two samples, $(x_0,y_0=0), (x_1,y_1=1)$,
+  \item Plot objective and gradient with respect to predicted scores.
+  \end{itemize}
+
+  \includegraphics[width=\textwidth]{gg_aum_grad}
+
+  \url{https://tdhock.github.io/blog/2024/torch-roc-aum/}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{ROC curve R torch code uses argsort}
+\small
+  \begin{verbatim}
+ROC_curve <- function(pred_tensor, label_tensor){
+  sorted_indices = torch_argsort(-pred_tensor$flatten())
+... # $cumsum() $diff() etc.
+  list(FPR=FPR, FNR=FNR, TPR=1 - FNR, 
+    "min(FPR,FNR)"=torch_minimum(FPR, FNR),
+    min_constant=torch_cat(c(torch_tensor(-Inf), uniq_thresh)),
+    max_constant=torch_cat(c(uniq_thresh, torch_tensor(Inf))))
+}
+> L <- ROC_curve(torch_tensor(c(2,-3.5,-1,1.5)),
++                torch_tensor(c(0,   0, 1,  1)))
+> data.frame(lapply(L, torch::as_array), check.names=FALSE)
+  FPR FNR TPR min.FPR.FNR. min_constant max_constant
+1 0.0 1.0 0.0          0.0         -Inf         -2.0
+2 0.5 1.0 0.0          0.5         -2.0         -1.5
+3 0.5 0.5 0.5          0.5         -1.5          1.0
+4 0.5 0.0 1.0          0.0          1.0          3.5
+5 1.0 0.0 1.0          0.0          3.5          Inf
+\end{verbatim}
+
+    \url{https://tdhock.github.io/blog/2024/auto-grad-overhead/}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{R code for AUC and proposed AUM both use ROC curve}
+
+  \begin{verbatim}
+ROC_AUC <- function(pred_tensor, label_tensor){
+  roc = ROC_curve(pred_tensor, label_tensor)
+  FPR_diff = roc$FPR[2:N]-roc$FPR[1:-2]
+  TPR_sum = roc$TPR[2:N]+roc$TPR[1:-2]
+  torch_sum(FPR_diff*TPR_sum/2.0)
+}
+Proposed_AUM <- function(pred_tensor, label_tensor){
+  roc = ROC_curve(pred_tensor, label_tensor)
+  min_FPR_FNR = roc[["min(FPR,FNR)"]][2:-2]
+  constant_diff = roc$min_constant[2:N]$diff()
+  torch_sum(min_FPR_FNR * constant_diff)
+}
+\end{verbatim}
+
+\small  \url{https://tdhock.github.io/blog/2024/auto-grad-overhead/}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Proposed AUM R torch code, auto-grad demo}
+
+  \begin{itemize}
+  \item Assume two samples, $(x_0,y_0=0), (x_1,y_1=1)$,
+  \item Plot objective and gradient with respect to predicted scores.
+  \item Compare explicit gradient with auto-grad from torch.
+  \end{itemize}
+
+  \includegraphics[width=\textwidth]{autoVsExplicitSubGradients-1}
+
+  \small
+  \url{https://tdhock.github.io/blog/2024/auto-grad-overhead/}
+\end{frame}
 
   
 \end{document} 
