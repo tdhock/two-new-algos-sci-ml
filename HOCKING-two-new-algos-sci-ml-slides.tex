@@ -319,14 +319,13 @@
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_FashionMNIST.png}
 
-  \includegraphics[width=\textwidth]{MNIST_FashionMNIST_error_glmnet_featureless_mean_SD_zoom.png}
+  \includegraphics[width=\textwidth]{MNIST_FashionMNIST_error_glmnet_featureless_mean_SD_zoom_useful.png}
   \begin{itemize}
   \item \textbf{cv\_glmnet} is L1-regularized linear model.
   \item \textbf{featureless} baseline always predicts most frequent class.
   \item \textbf{Other cv\_glmnet} has greater test error than
     \textbf{featureless}.
-  \item The patterns in the two subsets are too different for \textbf{Other cv\_glmnet} to learn
-    anything useful for prediction. (expected)
+  \item The patterns in the two subsets are too different for \textbf{Other cv\_glmnet} to learn anything useful for prediction. (expected)
   \end{itemize}
 \end{frame}
 
@@ -335,7 +334,7 @@
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST.png}
   
-  \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD_zoom.png}
+  \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD_zoom_useful.png}
   \begin{itemize}
   \item \textbf{Other cv\_glmnet} has significantly smaller test error
     than \textbf{featureless}, so linear model learns something that useful for predicting on the other subset.
@@ -350,7 +349,7 @@
 
   \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
   
-  \includegraphics[width=\textwidth]{MNIST_EMNIST_rot_error_glmnet_featureless_mean_SD_zoom.png} 
+  \includegraphics[width=\textwidth]{MNIST_EMNIST_rot_error_glmnet_featureless_mean_SD_zoom_useful.png} 
   \begin{itemize}
   \item \textbf{Other cv\_glmnet} has even smaller test error,
     indicating even more similarity between MNIST and EMNIST\_rot data
@@ -360,7 +359,7 @@
     by linear model in MNIST/EMNIST\_rot. (surprising)
   \end{itemize}
 \end{frame}
-
+ 
 \begin{frame}
   \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot)}
 
