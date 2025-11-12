@@ -70,12 +70,14 @@
 \begin{frame}
   \frametitle{LASSO lab -- \href{http://lassolab.org}{lassolab.org} }
   \begin{itemize}
+  \item Name inspired by influential paper, Tibshirani (JRSSB, 1996).
   \item Learning Algorithms, Statistical Software, Optimization.
   \item Fundamental new methods useful in different applications: new neural networks, loss functions, optimization algorithms, visualization techniques, ...
   \item Impactful collaborative research: carbon emissions estimation from satellite data, fish spawning localization from sonar data, interpretable models for autism, genomic data segmentation, global soil carbon modeling (Nature papers, 2023--2024), ...
   \item Contributions to widely-used software: R, pandas, data.table, xgboost, mlr3, torch, ...
   \item 30+ research students mentored at NAU and Sherbrooke.
   \item Mentorship for 30+ online coding internships, R in Google Summer of Code (2013--present).
+  \item Hiring PHD students to start next year!
   \end{itemize}
 \end{frame}
 
@@ -585,32 +587,6 @@
   \end{itemize} 
 \end{frame}
 
-\begin{frame} \frametitle{Evaluating imbalanced binary classification}
-
-  \begin{itemize}
-  \item How do we know if our learning algorithm is working?
-  \item Ex: neural network predicts 95\% labels accurately in test set.
-  \item Is this good or bad? It depends.
-  \item 3\% autism, 97\% not: 95\% accuracy is worse than featureless
-    baseline! (which always predicts most frequent class, 97\% accuracy)
-  \item 50\% positive, 50\% negative (balanced labels): 95\% accuracy
-    is definitely better than featureless baseline (50\% accuracy).
-  \item ROC curves are useful because featureless baseline always has
-    Area Under Curve (AUC) of 0.5.
-  \item AUC$>0.5$ means the algorithm has learned something non-trivial.
-  \end{itemize}
-  
-\end{frame}
-
-\begin{frame} \frametitle{ROC curves: fair comparison with different default FPR}
-  \includegraphics[width=0.65\textwidth]{figure-batchtools-expired-earth-roc}
-  \begin{itemize}
-  \item Imbalanced labels: 18\% positive, 82\% negative.
-  \item At defaults (D), glmnet has fewer errors (misleading).
-  \item At FPR=4\%, xgboost has fewer errors (fair comparison).
-  \end{itemize}
-\end{frame}
-
 \begin{frame}
   \frametitle{Receiver Operating Characteristic (ROC) Curves}
   \begin{itemize}
@@ -630,6 +606,51 @@
   \includegraphics[width=\textwidth]{figure-more-than-one-new-binary}
 \end{frame}
 
+
+\begin{frame} \frametitle{ROC curve motivation 1: comparing algorithms}
+  How to compare algorithms with different false positive rates?
+  \begin{itemize}
+   \item Ex: two algorithms with 50 positive and 50 negative labels.
+   \begin{itemize}
+    \item algo A 5 incorrectly predicted positive labels (FPR=0).
+    \item algo B 5 incorrectly predicted negative labels (FPR=10\%).
+    \item both have label error rate of 5\%.
+    \item which is better?
+   \end{itemize}
+ \item ROC curves show TPR=1-FNR for all possible FPR values, so are fair to algorithms with different false positive rates.
+   \begin{itemize}
+   % \item TPR = True Positive Rate
+   %   (correctly predicted positive labels)
+   %    = 1-False Negative Rate
+   % \item FPR = False Positive Rate (incorrectly predicted negative labels)
+   \item Can compare TPR using a fixed relevant FPR, ex: compare TPR of algos A and B, when both algos have FPR=5\%.
+   \item Or average over all FPR: Area Under ROC Curve (AUC, larger values mean more accurate).
+   \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{ROC curve motivation 2: class imbalance}
+  \begin{itemize}
+  \item How do we know if our learning algorithm is working?
+  \item Ex: neural network predicts 95\% labels accurately in test set.
+  \item Is this good or bad? It depends.
+  \item 3\% autism, 97\% not: 95\% accuracy is worse than featureless
+    baseline! (which always predicts most frequent class, 97\% accuracy)
+  \item 50\% positive, 50\% negative (balanced labels): 95\% accuracy
+    is definitely better than featureless baseline (50\% accuracy).
+  \item featureless baseline always has
+    Area Under ROC Curve (AUC) of 0.5, so AUC$>0.5$ means the algorithm has learned something non-trivial (regardless of class balance).
+  \end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{ROC curves: fair comparison with different default FPR}
+  \includegraphics[width=0.65\textwidth]{figure-batchtools-expired-earth-roc}
+  \begin{itemize}
+  \item Imbalanced labels: 18\% positive, 82\% negative.
+  \item At defaults (D), glmnet has fewer errors (misleading).
+  \item At FPR=4\%, xgboost has fewer errors (fair comparison).
+  \end{itemize}
+\end{frame}
 
 
 \begin{frame}
