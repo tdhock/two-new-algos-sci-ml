@@ -68,11 +68,11 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{LASSO lab -- \href{http://lassolab.org}{lassolab.org} }
+  \frametitle{LASSO lab --- \href{http://lassolab.org}{lassolab.org} }
   \begin{itemize}
   \item Name inspired by influential paper, Tibshirani (JRSSB, 1996).
   \item Learning Algorithms, Statistical Software, Optimization.
-  \item Fundamental new methods useful in different applications: new neural networks, loss functions, optimization algorithms, visualization techniques, ...
+  \item Fundamental new methods useful in different applications: new neural networks, loss functions, optimization algorithms, data visualization {\small\url{https://animint.github.io/gallery}}, ...
   \item Impactful collaborative research: carbon emissions estimation from satellite data, fish spawning localization from sonar data, interpretable models for autism, genomic data segmentation, global soil carbon modeling (Nature papers, 2023--2024), ...
   \item Contributions to widely-used software: R, pandas, data.table, xgboost, mlr3, torch, ...
   \item 30+ research students mentored at NAU and Sherbrooke.
@@ -855,10 +855,8 @@ def Proposed_AUM(pred_tensor, label_tensor):
   %   can be implemented by sorting predicted scores).
   \item Proposed AUM loss is an L1 relaxation defined as a sum over
     points on the ROC curve (requires sorting predicted scores).
-  \item Proposed AUM loss can be used in gradient descent instead of logistic/binary cross-entropy loss. R/Python torch code!
-  \item Best use with stochastic gradient algorithms?
-    At least one positive and one negative example is required in each
-    batch.
+  \item Proposed AUM loss can be used in gradient descent instead of logistic/binary cross-entropy loss. Python torch code!
+  \item R: \texttt{torch::nn\_aum\_loss} since June 2025, \url{https://github.com/tdhock/mlr3torchAUM}
   \item Algorithms like SVM? (margin/kernel)
   \item How to adapt to multi-class setting, and other problems such as
     ranking/information retrieval?
