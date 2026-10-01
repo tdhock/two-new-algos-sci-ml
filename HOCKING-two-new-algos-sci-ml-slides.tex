@@ -223,7 +223,7 @@
   \item Example: $K=3$ folds, two subsets (A/B).
   \item Compute test error for each fold (1/2/3) and subset (A/B).
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-cv-same-other-generic}
+  \includegraphics[width=\textwidth]{drawing-SOAK-predict-B}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -264,7 +264,7 @@ return P-values for each test subset
   \item Farahani \emph{et al.} (2021) review domain
       adaptation,
       Other model is ``unsupervised'' because no labels available in the target domain (\textbf{missing comparison with Same}).
-  \item \textbf{Proposed SOAK (2026): new subset column distinct from previous fold/group/stratum column, several train/test splits per test subset, P-values for Same/Other/All comparison}.
+  \item \textbf{Proposed SOAK (2026): new subset column distinct from previous fold/group/stratum columns, several train/test splits per test subset, P-values for Same/Other/All comparison}.
   \end{itemize}
 \end{frame}
 
@@ -272,7 +272,7 @@ return P-values for each test subset
   \frametitle{Proposed SOAK algorithm (geographical data example)}
   \includegraphics[width=\textwidth]{figure-proda-map-previous-proposed}
 \end{frame}
- 
+
 \begin{frame}
   \frametitle{Proposed SOAK algorithm new to ML frameworks}
   \small
