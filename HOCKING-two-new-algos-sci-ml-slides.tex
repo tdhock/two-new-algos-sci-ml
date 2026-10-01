@@ -137,7 +137,7 @@
   \end{itemize}
 \end{frame}
 
-\section{Train on one subset and accurately predict on another? \\ SOAK: Same/Other/All K-fold cross-validation for estimating similarity of patterns in data subsets (arXiv:2410.08643)}
+\section{Train on one subset and accurately predict on another? \\ SOAK: Same/Other/All K-fold cross-validation for estimating similarity of patterns in data subsets (Statistical Analysis and Data Mining 2026)}
 
 \begin{frame}
   \frametitle{Example data with subsets: predicting childhood autism}
@@ -256,25 +256,45 @@
 
 % \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Previous (2 for loops) and proposed (3 for loops)}
+
+\begin{verbatim}
+for fold_assignment_method in Random,Block:
+  for test_fold from 1 to K: (previous Valavi 2018)
+    train_data = data[fold!=test_fold]
+    test_data = data[fold==test_fold]
+  compute mean test error over folds
+compute P-value, Random-Block
+
+for test_subset in A,B: (Proposed SOAK)
+  for train_subsets in Same,Other,All:
+    for test_fold from 1 to K:
+      train_data = data[fold!=test_fold, train_subets]
+      test_data = data[fold==test_fold, test_subset]
+    compute mean test error over folds
+  compute P-values, Same-Other and Same-All
+return P-values for each test subset  
+\end{verbatim}    
+\end{frame}
+
 \begin{frame}
-  \frametitle{Related work}
+  \frametitle{Previous work and novelty}
   \begin{itemize}
-  \item Same/Other comparison has been used to evaluate
-    \textbf{out-of-distribution predictions}, for example in computer vision,
-    evaluating predictions on images with new position/rotation/scale
-    values (Madan \emph{et al.}, 2020).
-  \item Farahani \emph{et al.} (2021) review \textbf{domain
-      adaptation} algorithms (special case of transfer learning),
-    Other model is called ``unsupervised domain adaptation'' because there
-    are no labels available in the target domain (comparison with Same
-    is not often present).
-  \item \textbf{Algorithmic bias/fairness} benchmark data have interesting
-    demographic subsets that could be used in SOAK (for example
-    gender, race, etc), but this literature does not often discuss
-    details of how cross-validation is used (Savoldi \emph{et al.}, 2021).
-  \item \textbf{Spatial cross-validation} has been used in geographical
-    data analysis, and can be viewed as the ``Other'' model in SOAK
-    (Ploton \emph{et al.}, 2020).
+  \item scikit-learn (Pedragosa 2011) and mlr3 (Bischl 2019) support group/strata columns, \textbf{not subset}.
+  \item Spatial/blocked cross-validation similar to SOAK ``Other'' model but \textbf{without distinct subset column, only one split per test subset}
+    (Valavi \emph{et al.}, 2018; Ploton \emph{et al.}, 2020).
+  % \item Algorithmic bias/fairness benchmark data have interesting
+  %   demographic subsets that could be used in SOAK (for example
+  %   gender, race, etc), missing 
+  %   details of how cross-validation is used (Savoldi \emph{et al.}, 2021).
+  \item Same/Other comparison has been used \textbf{without P-values} in
+    out-of-distribution predictions, for example in computer vision
+    (Madan \emph{et al.}, 2020).
+  \item Farahani \emph{et al.} (2021) review domain
+      adaptation,
+      Other model is ``unsupervised'' because no labels available in the target domain (\textbf{missing comparison with Same}).
+  \item \textbf{Proposed SOAK (2026): new subset column distinct from previous fold/group/stratum column, several train/test splits per test subset, P-values for Same/Other/All comparison}.
   \end{itemize}
 \end{frame}
 
@@ -283,9 +303,9 @@
   \small
   \begin{itemize}
   \item ML frameworks like scikit-learn and mlr3 implement cross-validation with \textbf{groups} of samples that must stay together when splitting.
-  \item For example (below), satellite image segmentation, trees vs background, Shenkin \emph{et al.}: samples=pixels, grouped by polygon, SOAK subsets are geographical regions (NW, NE, S).
+  \item For example (below), satellite image segmentation, trees vs background (\textbf{strata}), Shenkin \emph{et al.}: samples=pixels, grouped by polygon, SOAK subsets are geographical regions (NW, NE, S).
   \item SOAK: good predictions on one test \textbf{subset},
-    after training on Same/Other/All subsets? (can use together with groups)
+    after training on Same/Other/All subsets? (can use together with groups/strata)
   \end{itemize}
   \includegraphics[width=\textwidth]{figure-aztrees}
 \end{frame}
