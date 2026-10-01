@@ -165,12 +165,10 @@
   \frametitle{$K$-fold cross-validation: a standard algorithm used to estimate prediction accuracy in machine learning}
 
   \begin{itemize}
-  \item $K=3$ folds shown in figure below, meaning three different
-    models trained, and three different prediction/test accuracy rates
+  \item $K=3$ folds shown below: three different
+    models trained, three different prediction/test accuracy rates
     computed.
-  \item It is important to use several train/test splits, so we can
-    see if there are statistically significant differences between
-    algorithms.
+  \item Important: several train/test splits allow computation of P-values, to test for statistically significant differences between algorithms (not possible with only one split).
   \end{itemize}
 
   \includegraphics[width=\textwidth]{drawing-cross-validation.pdf}
@@ -187,7 +185,7 @@
   \item Subsets of interest are years, which can be represented by
     adding a new column to the data table.
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-cv-same-other-years-1.pdf}
+  \includegraphics[width=\textwidth]{drawing-SOAK-predict-2020-data}
 \end{frame}
 
 \begin{frame}
@@ -196,7 +194,7 @@
   \item Train subset same as test (=regular $K$-fold CV on 2020).
     \item Do we get a more or less accurate model than this baseline Same model? (if we train on Other/All years)
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-cv-same-other-years-2.pdf}
+  \includegraphics[width=\textwidth]{drawing-SOAK-predict-2020-same}
 \end{frame}
 
 \begin{frame}
@@ -205,7 +203,7 @@
   \item Test subset fixed (2020), train on other subset/year (2019).
     \item Can we train on one year, and accurately predict on another? Compare Same/Other test error.
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-cv-same-other-years-ann}
+  \includegraphics[width=\textwidth]{drawing-SOAK-predict-2020-other}
 \end{frame}
 
 \begin{frame}
@@ -215,7 +213,7 @@
     \item Can we get a more accurate model by combining data from
       different years? Compare Same/All test error.
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-cv-same-all-years-ann}
+  \includegraphics[width=\textwidth]{drawing-SOAK-predict-2020-all}
 \end{frame}
 
 \begin{frame}
@@ -227,34 +225,6 @@
   \end{itemize}
   \includegraphics[width=\textwidth]{drawing-cv-same-other-generic}
 \end{frame}
-
-% \begin{frame}
-%   \frametitle{Proposed SOAK algorithm, interpretation/expectations}
-
-%   For a fixed test set from one subset:
-   
-%   If subsets have similar learnable/predictable patterns,
-%   \\(this is a weaker condition than i.i.d.)
-%   \begin{description}
-%   \item[All] should be most accurate.
-%   \item[Same/Other] should be less accurate, because there is less
-%     data available (if more data in Other than in Same, then Other should be
-%     more accurate than Same, etc).
-%   \end{description}
-
-%   If subsets have different learnable/predictable patterns,
-%   \begin{description}
-%   \item[Same] should be most accurate.
-%   \item[Other] should be substantially less accurate.
-%   \item[All] accuracy should be between Same and Other.
-%   \end{description}
-%   \begin{itemize}
-%     \item Can we train on one year, and accurately predict on another? Compare Same/Other test error.
-%     \item Can we get a more accurate model by combining data from
-%       different years? Compare Same/All test error.
-%   \end{itemize}
-
-% \end{frame}
 
 \begin{frame}
   \frametitle{Related work}
@@ -274,8 +244,13 @@
     details of how cross-validation is used (Savoldi \emph{et al.}, 2021).
   \item \textbf{Spatial cross-validation} has been used in geographical
     data analysis, and can be viewed as the ``Other'' model in SOAK
-    (Ploton \emph{et al.}, 2020).
+    (Valavi \emph{et al.}, 2019; Ploton \emph{et al.}, 2020; Schratz \emph{et al.}, 2024).
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (geographical data example)}
+  \includegraphics[width=\textwidth]{figure-proda-map-previous-proposed}
 \end{frame}
 
 \begin{frame}
@@ -288,40 +263,6 @@
     after training on Same/Other/All subsets? (can use together with groups)
   \end{itemize}
   \includegraphics[width=\textwidth]{figure-aztrees}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Proposed SOAK algorithm (geographical data example)}
-  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-same}
-
-  \begin{itemize}
-  \item Say we want good prediction in western USA.
-  \item One of the K test sets is: subset=West and fold=1.
-  \item Train on Same (West, fold$\neq$1) establishes a baseline.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Proposed SOAK algorithm (geographical data example)}
-  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-all}
-
-  \begin{itemize}
-  \item Train on All (West+East, fold$\neq$1) would be less accurate
-    than Same if subsets are different, and more accurate if subsets
-    are similar (more relevant training data).
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Proposed SOAK algorithm (geographical data example)}
-  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-other}
-
-  \begin{itemize}
-  \item Train on Other (East, fold$\neq$1) would be less accurate than
-    Same if subsets are different.
-  \item If subsets are similar, then the larger of Same and Other should be
-    more accurate (more relevant training data).
-  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -857,9 +798,9 @@ def Proposed_AUM(pred_tensor, label_tensor):
     points on the ROC curve (requires sorting predicted scores).
   \item Proposed AUM loss can be used in gradient descent instead of logistic/binary cross-entropy loss. Python torch code!
   \item R: \texttt{torch::nn\_aum\_loss} since June 2025, \url{https://github.com/tdhock/mlr3torchAUM}
-  \item Algorithms like SVM? (margin/kernel)
-  \item How to adapt to multi-class setting, and other problems such as
-    ranking/information retrieval?
+  \item Algorithms like SVM (margin/kernel)
+  \item Multi-class, other problems such as
+    ranking/information retrieval, ...
   \item See our JMLR'23 paper for an application to supervised
     change-point detection, and arXiv:2410.08635 for an efficient line
     search that exploits the piecewise linear/constant nature of
@@ -1098,6 +1039,40 @@ Proposed_AUM <- function(pred_tensor, label_tensor){
 
   \small
   \url{https://tdhock.github.io/blog/2024/auto-grad-overhead/}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (geographical data example)}
+  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-same}
+
+  \begin{itemize}
+  \item Say we want good prediction in western USA.
+  \item One of the K test sets is: subset=West and fold=1.
+  \item Train on Same (West, fold$\neq$1) establishes a baseline.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (geographical data example)}
+  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-all}
+
+  \begin{itemize}
+  \item Train on All (West+East, fold$\neq$1) would be less accurate
+    than Same if subsets are different, and more accurate if subsets
+    are similar (more relevant training data).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proposed SOAK algorithm (geographical data example)}
+  \includegraphics[width=\textwidth]{figure-proda-cv-map-West-other}
+
+  \begin{itemize}
+  \item Train on Other (East, fold$\neq$1) would be less accurate than
+    Same if subsets are different.
+  \item If subsets are similar, then the larger of Same and Other should be
+    more accurate (more relevant training data).
+  \end{itemize}
 \end{frame}
 
   
