@@ -6,7 +6,6 @@
 \usepackage{graphicx}
 \usepackage[noend]{algcompatible}
 \usepackage{multirow}
-
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\Lik}{Lik}
 \DeclareMathOperator*{\PoissonLoss}{PoissonLoss}
@@ -40,7 +39,7 @@
 
 \begin{document}
 
-\title{SOAK: Same/Other/All K-Fold Cross-Validation for Estimating Similarity of Patterns in Data Subsets}
+\title{Same/Other/All K-Fold Cross-Validation for Estimating Similarity of Patterns in Data Subsets, Statistical Analysis and Data Mining (2026)}
 
 \author{
   Toby Dylan Hocking --- toby.dylan.hocking@usherbrooke.ca\\ 
@@ -90,6 +89,18 @@
 \end{frame}
 
 \section{Proposed new algorithm, SOAK: Same/Other/All K-fold cross-validation}
+
+\begin{frame}
+  \frametitle{Research paper and software}
+  Toby Dylan Hocking, Gabrielle Thibault, Cameron Scott Bodine, Paul Nelson Arellano, Alexander F
+Shenkin, and Olivia Lindly. SOAK: Same/Other/All K-fold cross-validation for estimating similarity of
+patterns in data subsets. Statistical Analysis and Data Mining, 19(1), 2026.
+
+\vskip 1in
+Corresponding R package: mlr3resampling.
+
+\url{https://mlr3resampling.netlify.app}
+\end{frame}
 
 \begin{frame}
   \frametitle{Example data with subsets: predicting childhood autism}
@@ -184,18 +195,18 @@
 \end{frame} 
 
 \begin{frame}[fragile]
-  \frametitle{Previous (2 for loops) and proposed (3 for loops)}
+  \frametitle{Previous (1 for loop) and proposed (3 for loops)}
 
 \begin{verbatim}
-for fold_assignment_method in Random,Block: (previous)
-  for test_fold from 1 to K:
-    train_data = data[fold!=test_fold]
-    test_data = data[fold==test_fold]
-  compute mean test error over folds
-compute P-value, Random-Block
+for test_fold from 1 to K: (previous standard/blocked CV)
+  train_data = data[fold!=test_fold]
+  test_data = data[fold==test_fold]
+compute mean test error over folds
+No P-values for comparing Same/Other/All training!
 
-for test_subset in A,B:                (Proposed SOAK)
-  for train_subsets in Same,Other,All:
+for test_subset in subsets:                (Proposed SOAK)
+  for model in Same,Other,All:
+    train_subsets = get_train_subsets(test_subset, model)
     for test_fold from 1 to K:
       train_data = data[fold!=test_fold, train_subsets]
       test_data = data[fold==test_fold, test_subset]
@@ -220,24 +231,24 @@ return P-values for each test subset
 \begin{frame}
   \frametitle{Previous work and novelty of SOAK}
   \begin{itemize}
-  \item scikit-learn (Pedragosa 2011) and mlr3 (Bischl 2019) support group/strata columns, \textbf{not subset}.
-  \item Spatial/blocked cross-validation similar to SOAK ``Other'' model but \textbf{without distinct subset column, only one split per test block}
-    (Valavi \emph{et al.}, 2019; Ploton \emph{et al.}, 2020; Schratz \emph{et al.}, 2024).
+  \item Software: scikit-learn (Pedragosa 2011) and mlr3 (Bischl 2019) support group/strata columns, \textbf{not subset}.
+  \item Spatial/blocked CV similar to SOAK ``Other'' but \textbf{without distinct subset column, only one split per test block}.
+    Wenger and Olden (2012), Roberts \emph{et al.} (2017), Valavi \emph{et al.} (2019), Ploton \emph{et al.} (2020), Schratz \emph{et al.} (2024).
   % \item Algorithmic bias/fairness benchmark data have interesting
   %   demographic subsets that could be used in SOAK (for example
   %   gender, race, etc), missing 
   %   details of how cross-validation is used (Savoldi \emph{et al.}, 2021).
-  \item Same/Other comparison \textbf{without P-values} in
-    out-of-distribution predictions in computer vision
+  \item Same/Other comparison \textbf{without P-values} for
+    out-of-distribution predictions 
     (Madan \emph{et al.}, 2020).
   \item Farahani \emph{et al.} (2021) review domain
       adaptation,
       Other model is ``unsupervised'' because no labels available in the target domain (\textbf{missing comparison with Same}).
-  \item \textbf{Proposed SOAK (2026): new subset column distinct from previous fold/group/stratum columns, several train/test splits per test subset, P-values for Same/Other/All comparisons}.
+  \item \textbf{Proposed SOAK algorithm (2026) + mlr3resampling software: new subset column distinct from previous fold/group/stratum columns, several train/test splits per test subset, P-values for Same/Other/All comparisons}.
   \end{itemize}
 \end{frame}
 
-\section{Results}
+\section{Results on 20 data sets}
 
 \begin{frame}
   \frametitle{ImagePair data: train on MNIST and accurately predict on MNIST variants?}
@@ -512,7 +523,7 @@ return P-values for each test subset
 
   \includegraphics[width=\textwidth]{2022-10-14_ML_group_meeting}
 
-  Reproducible slide/figure source code: \url{https://github.com/tdhock/cv-same-other-paper} \url{https://github.com/tdhock/max-generalized-auc}
+  Reproducible slide/figure source code: \url{https://github.com/tdhock/cv-same-other-paper} 
 \end{frame}
 
 \begin{frame}
@@ -621,8 +632,8 @@ label  1  2  3  4  5  6  7  8  9 10
     train/test splits via mlr3batchmark package (ex: SLURM).
   \item scikit-learn cross\_validate computes test error for a single algorithm (no special parallelization support).
   \item
-  For an example of how to use stratum, subset, and group in mlr3, see ``Arizona trees data'' section of
-  \url{https://cloud.r-project.org/web/packages/mlr3resampling/vignettes/Newer_resamplers.html}
+    For an example of how to use stratum, subset, and group in mlr3, see vignette ``Using subset with group and stratum.''
+    \url{https://mlr3resampling.netlify.app/doc/subset_group_stratum}
   \item 
   Scikit-learn
   \url{https://scikit-learn.org/stable/modules/cross_validation.html#stratifiedgroupkfold}
