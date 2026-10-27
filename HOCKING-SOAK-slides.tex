@@ -1,4 +1,4 @@
-\documentclass[t]{beamer} 
+\documentclass[t,aspectratio=1610]{beamer}
 \usepackage{tikz}
 \usepackage[all]{xy}
 \usepackage{amsmath,amssymb}
@@ -39,11 +39,12 @@
 
 \begin{document}
 
-\title{Same/Other/All K-Fold Cross-Validation for Estimating Similarity of Patterns in Data Subsets, Statistical Analysis and Data Mining (2026)}
+\title{Same/Other/All K-Fold Cross-Validation for Estimating Similarity of Patterns in Data Subsets,\\Statistical Analysis and Data Mining (2026)}
 
 \author{
   Toby Dylan Hocking --- toby.dylan.hocking@usherbrooke.ca\\ 
-  Learning Algorithms, Statistical Software, Optimization (LASSO Lab) --- \url{https://lassolab.org}\\
+  Learning Algorithms, Statistical Software, Optimization (LASSO Lab)\\
+  \url{https://lassolab.org}\\
   Département d'Informatique,  Université de Sherbrooke\\
   \includegraphics[height=5cm]{2022-10-14_ML_group_meeting.jpg} \\
 }
@@ -55,13 +56,13 @@
 \section{Introduction: how to evaluate machine learning algorithms?}
 
 \begin{frame}
-  \frametitle{Learning two different functions using two data sets}
-  Figure from chapter by Hocking TD, \textit{Introduction to machine
+  \frametitle{Machine learning powers modern AI systems}
+  {\small Figure from chapter by Hocking TD, \textit{Introduction to machine
     learning and neural networks} for book \textit{Land Carbon Cycle
     Modeling: Matrix Approach, Data Assimilation, and Ecological
-    Forecasting} edited by Luo Y (Taylor and Francis, 2022).
+    Forecasting} edited by Luo Y (Taylor and Francis, 2022).}
   \begin{center}
-  \includegraphics[width=\textwidth]{figure-learn-digits-clothing}
+  \includegraphics[width=0.9\textwidth]{figure-learn-digits-clothing}
 \end{center}
   \textbf{Learn} is a learning algorithm, which outputs
   $g$ and $h$.
@@ -80,15 +81,16 @@
   \item Predicting trees/burn/fish/carbon emissions
     (Aslam, Shenkin, Thibault, Bodine, \emph{et al.}), train on
     one geographic area, test on another. (\textbf{different geographic regions})
-  \item Cybersecurity: predicting vulnerabilities or attacks in different software/companies/etc. (\textbf{different technologies})
+  \item Cybersecurity: predicting vulnerabilities from source code (Barr \emph{et al.}), or attacks from network monitoring data, in \textbf{different software/sites/clients/etc.} 
   \item These are questions about \textbf{generalization}: how accurate
     is the learned function on a new/test data subset which is
     \textbf{qualitatively different} in some respect?
-  \item ``Should be accurate'' if test data are similar to train data... how to check? Proposed SOAK algorithm.
+  \item In theory, ``should be accurate if test data are similar to train data.''
+    \item In practice, how to check for a particular data set and learning algorithm? Proposed method: Same/Other/All K-fold cross-validation (SOAK).
   \end{itemize}
 \end{frame}
 
-\section{Proposed new algorithm, SOAK: Same/Other/All K-fold cross-validation}
+\section{Proposed new algorithm, Same/Other/All K-fold cross-validation (SOAK)}
 
 \begin{frame}
   \frametitle{Research paper and software}
@@ -100,6 +102,27 @@ patterns in data subsets. Statistical Analysis and Data Mining, 19(1), 2026.
 Corresponding R package: mlr3resampling.
 
 \url{https://mlr3resampling.netlify.app}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Standard K-fold cross-validation is used throughout machine learning}
+  \includegraphics[width=\textwidth]{slide-nested-cv}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Details of standard K-fold cross-validation}
+
+  \begin{itemize}
+  \item $K=3$ folds shown below: three different
+    models trained, three different prediction/test accuracy rates
+    computed.
+  \item Important: several train/test splits allow computation of P-values, to test for statistically significant differences between algorithms (not possible with only one split).
+  \end{itemize}
+
+  \includegraphics[width=\textwidth]{drawing-cross-validation-color}
+
+  \small Hocking TD \emph{Intro. to machine learning and neural
+    networks} (2022).
 \end{frame}
 
 \begin{frame}
@@ -125,23 +148,6 @@ Corresponding R package: mlr3resampling.
 \end{frame}
 
 \begin{frame}
-  \frametitle{$K$-fold cross-validation: a standard algorithm used to estimate prediction accuracy in machine learning}
-
-  \begin{itemize}
-  \item $K=3$ folds shown below: three different
-    models trained, three different prediction/test accuracy rates
-    computed.
-  \item Important: several train/test splits allow computation of P-values, to test for statistically significant differences between algorithms (not possible with only one split).
-  \end{itemize}
-
-  \includegraphics[width=\textwidth]{drawing-cross-validation-color}
-
-  \small Hocking TD \emph{Intro. to machine learning and neural
-    networks} (2022).
-\end{frame}
-
-
-\begin{frame}
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
   \item Example: childhood autism prediction data set.
@@ -154,10 +160,10 @@ Corresponding R package: mlr3resampling.
 \begin{frame}
   \frametitle{Proposed SOAK algorithm (Autism data example)}
   \begin{itemize}
-  \item Train subset same as test (=regular $K$-fold CV on 2020).
+  \item Train subset same as test (=regular K-fold CV on 2020).
     \item Do we get a more or less accurate model than this baseline Same model? (if we train on Other/All years)
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-SOAK-predict-2020-same}
+  \includegraphics[width=0.8\textwidth]{drawing-SOAK-predict-2020-same}
 \end{frame}
 
 \begin{frame}
@@ -166,7 +172,7 @@ Corresponding R package: mlr3resampling.
   \item Test subset fixed (2020), train on other subset/year (2019).
     \item Can we train on one year, and accurately predict on another? Compare Same/Other test error.
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-SOAK-predict-2020-other}
+  \includegraphics[width=0.8\textwidth]{drawing-SOAK-predict-2020-other}
 \end{frame}
 
 \begin{frame}
@@ -176,7 +182,7 @@ Corresponding R package: mlr3resampling.
     \item Can we get a more accurate model by combining data from
       different years? Compare Same/All test error.
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-SOAK-predict-2020-all}
+  \includegraphics[width=0.8\textwidth]{drawing-SOAK-predict-2020-all}
 \end{frame}
 
 \begin{frame}
@@ -186,12 +192,12 @@ Corresponding R package: mlr3resampling.
   \item Example: $K=3$ folds, two subsets (A/B).
   \item Compute test error for each fold (1/2/3) and subset (A/B).
   \end{itemize}
-  \includegraphics[width=\textwidth]{drawing-SOAK-predict-B}
+  \includegraphics[width=0.8\textwidth]{drawing-SOAK-predict-B}
 \end{frame}
 
 \begin{frame}
   \frametitle{Proposed SOAK algorithm (geographical data example)}
-  \includegraphics[width=\textwidth]{figure-proda-map-previous-proposed}
+  \includegraphics[width=0.9\textwidth]{figure-proda-map-previous-proposed}
 \end{frame} 
 
 \begin{frame}[fragile]
@@ -221,17 +227,17 @@ return P-values for each test subset
   \small
   \begin{itemize}
   \item Previous scikit-learn/mlr3: when splitting, rows in a \textbf{group} stay together, \textbf{strata} proportions preserved.
-  \item For example (below), satellite image segmentation, trees vs background (\textbf{strata}), Shenkin \emph{et al.}: rows=pixels, \textbf{grouped by polygon}, SOAK \textbf{subsets} are geographical regions (NW, NE, S).
+  \item For example (below, Shenkin \emph{et al.}), satellite image segmentation, trees vs background (\textbf{strata}), rows=pixels, \textbf{grouped by polygon}, SOAK \textbf{subsets} are geographical regions (NW, NE, S).
   \item SOAK: good predictions on one test \textbf{subset},
     after training on Same/Other/All subsets? (can use together with groups/strata)
   \end{itemize}
-  \includegraphics[width=\textwidth]{figure-aztrees}
+  \includegraphics[width=0.8\textwidth]{figure-aztrees}
 \end{frame}
 
 \begin{frame}
   \frametitle{Previous work and novelty of SOAK}
   \begin{itemize}
-  \item Software: scikit-learn (Pedragosa 2011) and mlr3 (Bischl 2019) support group/strata columns, \textbf{not subset}.
+  \item Free software machine learning frameworks: scikit-learn (Pedragosa 2011) and mlr3 (Bischl 2019) support group/strata column roles, \textbf{not subset}.
   \item Spatial/blocked CV similar to SOAK ``Other'' but \textbf{without distinct subset column, only one split per test block}.
     Wenger and Olden (2012), Roberts \emph{et al.} (2017), Valavi \emph{et al.} (2019), Ploton \emph{et al.} (2020), Schratz \emph{et al.} (2024).
   % \item Algorithmic bias/fairness benchmark data have interesting
@@ -244,14 +250,44 @@ return P-values for each test subset
   \item Farahani \emph{et al.} (2021) review domain
       adaptation,
       Other model is ``unsupervised'' because no labels available in the target domain (\textbf{missing comparison with Same}).
-  \item \textbf{Proposed SOAK algorithm (2026) + mlr3resampling software: new subset column distinct from previous fold/group/stratum columns, several train/test splits per test subset, P-values for Same/Other/All comparisons}.
+  \item \textbf{Proposed Same/Other/All K-fold cross-validation (SOAK, 2026)  + mlr3resampling R package: new subset column distinct from previous fold/group/stratum columns, several train/test splits per test subset, P-values for Same-Other and Same-All comparisons}.
   \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{ML framework feature comparison}
+
+  \begin{tabular}{ccccc}
+     & R& & python   \\
+     & mlr3& how? &  scikit-learn & how?\\
+    \hline
+    Learners & multiple & benchmark\_grid() & single & cross\_validate() \\
+    Subsets(proposed) & yes & mlr3resampling & no & code it yourself \\
+    Parallelization & yes & mlr3batchmark & no & code it yourself   \\
+  \end{tabular}
+
+Support for \textbf{structured} cross-validation:
+  \begin{itemize}
+  \item 
+    scikit-learn StratifiedGroupKFold
+    %\url{https://scikit-learn.org/stable/modules/cross_validation.html#stratifiedgroupkfold}
+  supports group and stratum roles, not subset.
+  \item
+    mlr3resampling supports three column roles: stratum, subset, and group,\\see vignette ``Using subset with group and stratum.''
+    \url{https://mlr3resampling.netlify.app/doc/subset_group_stratum}
+  \end{itemize}
+  Support for \textbf{parallel} cross-validation:
+  \begin{itemize}
+  \item scikit-learn cross\_validate() computes test error for a single algorithm\\
+    (no special parallelization support).
+  \item mlr3 supports parallelization over algorithm, data sets, and
+    train/test splits via mlr3batchmark package (using all CPUs on your laptop, SLURM cluster, etc).
+  \end{itemize}
+\end{frame}
 \section{Results on 20 data sets}
 
 \begin{frame}
-  \frametitle{ImagePair data: train on MNIST and accurately predict on MNIST variants?}
+  \frametitle{ImagePair data: train on MNIST and accurately predict on variants?}
 
   \begin{itemize}
   \item Expect: $g(\includegraphics[height=1cm]{fashion-mnist-boot})$ and
@@ -263,13 +299,13 @@ return P-values for each test subset
   \item Each data set has two subsets: MNIST/variant.
  \end{itemize}
 
-  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_1.png}
+  \includegraphics[width=0.9\textwidth]{data_Classif_MNIST_other_1.png}
 \end{frame}
 
 \begin{frame}
   \frametitle{SOAK for IPair\_Fashion data set (MNIST+FashionMNIST)}
 
-  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_FashionMNIST.png}
+  \includegraphics[width=0.7\textwidth]{data_Classif_MNIST_other_FashionMNIST.png}
 
   \includegraphics[width=\textwidth]{MNIST_FashionMNIST_error_glmnet_featureless_mean_SD_zoom_useful.png}
   \begin{itemize}
@@ -284,7 +320,7 @@ return P-values for each test subset
 \begin{frame}
   \frametitle{SOAK for IPair\_E data set (MNIST+EMNIST)}
 
-  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST.png}
+  \includegraphics[width=0.7\textwidth]{data_Classif_MNIST_other_EMNIST.png}
   
   \includegraphics[width=\textwidth]{MNIST_EMNIST_error_glmnet_featureless_mean_SD_zoom_useful.png}
   \begin{itemize}
@@ -299,7 +335,7 @@ return P-values for each test subset
 \begin{frame}
   \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot)} 
 
-  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
+  \includegraphics[width=0.7\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
   
   \includegraphics[width=\textwidth]{MNIST_EMNIST_rot_error_glmnet_featureless_mean_SD_zoom_useful.png} 
   \begin{itemize}
@@ -311,22 +347,29 @@ return P-values for each test subset
     by linear model in MNIST/EMNIST\_rot. (surprising)
   \end{itemize}
 \end{frame}
+
+\begin{frame}
+  \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot), several learners}
+
+  \includegraphics[width=0.7\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
+
+  \includegraphics[width=0.9\textwidth]{conv_images_figures_same_other.png}
+  
+  Neural networks (torch\_dense\_50, torch\_conv) have smaller test error than linear models, but \textbf{Same} still has smaller test error than \textbf{Other}.
+\end{frame}
  
 \begin{frame}
-  \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot)}
+  \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot), conv. net}
 
-  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
+  \includegraphics[width=0.7\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
 
-  \includegraphics[width=\textwidth]{conv_images_10fold_figure_pval}
+  \includegraphics[width=0.9\textwidth]{conv_images_10fold_figure_pval}
 
   \begin{itemize}
-  \item For conv. net, test error for \textbf{Other} is still larger than \textbf{Same} (can't train on one subset and predict optimally on the other).
-  \item Test error for \textbf{All} is smaller than \textbf{Same} ---
+  \item For torch\_conv (convolutional neural network), test error for \textbf{Other} is still larger than \textbf{Same} (can't train on one subset and predict optimally on the other).
+  \item But test error for \textbf{All} is smaller than \textbf{Same} ---\\
     can combine subsets when training, for more accurate predictions.
   \end{itemize}
-  %  --- slightly beneficial to combine
-  % subsets when training with this algorithm (but not with linear
-  % model).
 \end{frame}
 
 \begin{frame}
@@ -396,6 +439,7 @@ return P-values for each test subset
   \frametitle{Benchmark data with pre-defined train/test subsets}
   \includegraphics[width=\textwidth]{data_Classif_batchmark_registry_glmnet_featureless_mean_sd}
   \vskip -0.5cm
+  \scriptsize
   \begin{itemize}
   \item Left data sets have similar pre-defined train/test subsets (expected), All error is always less than Same, and Other error is either greater or less than Same, depending on subset sizes. 
   \item Right data sets have different pre-defined train/test subsets (surprising), All error is always greater than or equal to Same, and Other error is always greater than Same.
@@ -463,14 +507,13 @@ return P-values for each test subset
 \end{frame}
 
 \begin{frame}
-  \frametitle{All-Same comparison across 20 data sets}
+  \frametitle{All-Same comparison across 20 data sets, cv\_glmnet algorithm}
   \includegraphics[width=\textwidth]{figure-paper-same-all}
-  \parbox{2.5in}{
+  \parbox{3in}{
     Figure: For each data set, point/segments show mean/range over test subsets.
-  }\hspace{0.2in}\parbox{1.5in}{
+  }\hspace{0.5in}\parbox{2in}{
     Table: ranges over test subsets.
   }
-  \vspace{0.2in}
   \begin{itemize}
   \item Top: 10 data sets with incompatible subsets.
   \item Bottom: 10 data sets with compatible subsets.
@@ -478,14 +521,13 @@ return P-values for each test subset
 \end{frame}
 
 \begin{frame}
-  \frametitle{Other-Same comparison across 20 data sets}
+  \frametitle{Other-Same comparison across 20 data sets, cv\_glmnet algorithm}
   \includegraphics[width=\textwidth]{figure-paper-same-other}
-  \parbox{2.5in}{
+  \parbox{3in}{
     Figure: For each data set, point/segments show mean/range over test subsets.
-  }\hspace{0.2in}\parbox{1.5in}{
+  }\hspace{0.5in}\parbox{2in}{
     Table: ranges over test subsets.
   }
-  \vspace{0.2in}
   \begin{itemize}
   \item Top: 10 data sets with incompatible subsets.
   \item Bottom: 10 data sets with compatible subsets.
@@ -497,31 +539,28 @@ return P-values for each test subset
 \begin{frame}
   \frametitle{Summary of contributions}
   \begin{itemize}
-  \item Proposed SOAK algorithm estimates similarity of
-    learnable patterns between 
-    subsets (space, time, etc).
-  \item SOAK idea is new to ML frameworks (proposed \textbf{subset} column/idea not the same as \textbf{group}/\textbf{stratum}).
-  \item Free/open-source R package available in mlr3 framework (easy
-    parallelization over algorithms, data sets, train/test splits)
-    \url{https://github.com/tdhock/mlr3resampling}
+  \item Proposed Same/Other/All K-fold cross-validation (SOAK) estimates similarity of subsets (space, time, etc), for a particular learning algorithm. 
+  \item SOAK idea is new: P-values for Same-Other and Same-All comparisons,\\
+    proposed \textbf{subset} column can be used with previous \textbf{group}/\textbf{stratum}.
+  \item Free/open-source R package available in mlr3 framework\\
+    \url{https://github.com/tdhock/mlr3resampling}\\
+    (easy parallelization over algorithms, data sets, train/test splits)
   \item Ran SOAK in parallel over 20 classification data sets, 10
     folds, 2--4 subsets, Same/Other/All (1200+ train/test splits).
   \item Train on MNIST, predict on FashionMNIST (impossible), predict
-    on EMNIST (surprisingly difficult, both are digits).
-  \item Most pre-defined train/test subsets in benchmark data
-    are similar (STL10/waveform), some are not (KMNIST/vowel).
-  \item We observed similarity between years in Autism data (slight benefit to combining years, predicting on new year works).
-  \item In fires/trees/fish data, we observed
-    significant differences between images/regions/rivers.
+    on EMNIST (surprisingly difficult for linear model, even though both are digits).
+  \item For linear model, most pre-defined train/test subsets in benchmark data
+    were similar (STL10/waveform), two were not (KMNIST/vowel).
+  \item We observed similarity between years in Autism data (linear model slightly benefits from combining years, predicting on new year works).
+  \item In fires/trees/fish data, 
+    images/regions/rivers were too different for accurate learning and prediction using linear model.
   \end{itemize}
 \end{frame}
-
-
 
 \begin{frame}
   Thanks! Please email me if you are interested to collaborate: toby.dylan.hocking@usherbrooke.ca
 
-  \includegraphics[width=\textwidth]{2022-10-14_ML_group_meeting}
+  \includegraphics[width=0.9\textwidth]{2022-10-14_ML_group_meeting}
 
   Reproducible slide/figure source code: \url{https://github.com/tdhock/cv-same-other-paper} 
 \end{frame}
@@ -574,6 +613,11 @@ selection, etc). For details see Hastie, {\it et al.} (2009) textbook.
 
 
 \begin{frame}
+  \frametitle{SOAK yields consistent conclusions using accuracy and AUC}
+  \includegraphics[width=0.7\textwidth]{figure-accuracy-auc}
+\end{frame}
+
+\begin{frame}
   \frametitle{Large sample size effect}
   \includegraphics[width=\textwidth]{STL10_error_glmnet_sizes_mean_sd_more}
 \end{frame}
@@ -586,6 +630,11 @@ selection, etc). For details see Hastie, {\it et al.} (2009) textbook.
 \begin{frame}
   \frametitle{Small sample size effect}
   \includegraphics[width=\textwidth]{NSCH_autism_error_glmnet_sizes_mean_sd_more}
+\end{frame}
+
+\begin{frame}
+  %\frametitle{Same versus All comparisons}
+  \includegraphics[width=0.9\textwidth]{figure-same-all}
 \end{frame}
 
 
@@ -615,40 +664,6 @@ label  1  2  3  4  5  6  7  8  9 10
 
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{ML framework feature comparison}
-
-  \begin{tabular}{cccc}
-    Language & R& & python   \\
-    Framework & mlr3& how? &  scikit-learn \\
-    \hline
-    Learners & multiple & benchmark\_grid & single \\
-    Parallelization & yes & mlr3batchmark & no   \\
-    Subsets(proposed) & yes & mlr3resampling & no  \\
-  \end{tabular}
-
-  \begin{itemize}
-  \item mlr3 supports parallelization over algorithm, data sets, and
-    train/test splits via mlr3batchmark package (ex: SLURM).
-  \item scikit-learn cross\_validate computes test error for a single algorithm (no special parallelization support).
-  \item
-    For an example of how to use stratum, subset, and group in mlr3, see vignette ``Using subset with group and stratum.''
-    \url{https://mlr3resampling.netlify.app/doc/subset_group_stratum}
-  \item 
-  Scikit-learn
-  \url{https://scikit-learn.org/stable/modules/cross_validation.html#stratifiedgroupkfold}
-  supports group, and stratification by class, but not subset.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{SOAK for IPair\_E\_rot data set (MNIST+EMNIST\_rot)}
-
-  \includegraphics[width=\textwidth]{data_Classif_MNIST_other_EMNIST_rot.png}
-
-  \includegraphics[width=\textwidth]{conv_images_figures_same_other.png}
-  Convolutional neural network (torch\_conv) has smaller test error than linear model; \textbf{Same} still has smaller test error than \textbf{Other}.
-\end{frame}
 
 
 
